@@ -1,16 +1,18 @@
 import uuid
-from typing import List, Annotated
-from fastapi import APIRouter, status, Depends, HTTPException
-from app.schemas.user import UserCreate, UserResponse, UserUpdate
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from app.api.dependencies import (
+    CurrentUserDep,
+    UserRepoDep,
+    UserServiceDep,
+    get_user_for_update,
+    require_role,
+)
 from app.models.user import User
 from app.schemas.role import UserRole
-from app.api.dependencies import (
-    UserServiceDep,
-    UserRepoDep,
-    CurrentUserDep,
-    require_role,
-    get_user_for_update,
-)
+from app.schemas.user import UserCreate, UserResponse, UserUpdate
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -21,7 +23,7 @@ async def create_user(user_data: UserCreate, service: UserServiceDep):
     return await service.create_user(user_data)
 
 
-@router.get("/", response_model=List[UserResponse])
+@router.get("/", response_model=list[UserResponse])
 async def get_all_users(
     user_repo: UserRepoDep,
     current_user: CurrentUserDep,

@@ -40,7 +40,7 @@ export default function ProfilePage() {
         <div className={commonStyles.container}>
             <div className={commonStyles.card} style={{maxWidth: '500px', margin: '2rem auto'}}>
                 <h2 className={commonStyles.title}>Мой профиль</h2>
-                
+
                 {message && <div className={styles.successMessage}>{message}</div>}
                 {error && <div className={commonStyles.error}>{error}</div>}
 
@@ -48,9 +48,9 @@ export default function ProfilePage() {
                     {/* БЕЗОПАСНОЕ ОТОБРАЖЕНИЕ АВАТАРА */}
                     <div className={styles.avatarContainer}>
                         {avatarUrl ? (
-                            <img 
-                                src={avatarUrl} 
-                                alt={name} 
+                            <img
+                                src={avatarUrl}
+                                alt={name}
                                 className={styles.avatarImg}
                                 onError={(e) => { e.target.style.display = 'none'; }}
                             />
@@ -58,7 +58,7 @@ export default function ProfilePage() {
                             <div className={styles.avatarPlaceholder}>{name[0]?.toUpperCase()}</div>
                         )}
                     </div>
-                    
+
                     <div className={styles.email}>{user.email}</div>
                     <div className={styles.roleBadge}>{user.role}</div>
                 </div>
@@ -66,20 +66,20 @@ export default function ProfilePage() {
                 <form onSubmit={handleUpdate} className={commonStyles.formGroup}>
                     <div>
                         <label className={styles.label}>Имя</label>
-                        <input 
-                            className={commonStyles.input} 
-                            value={name} 
-                            onChange={e => setName(e.target.value)} 
+                        <input
+                            className={commonStyles.input}
+                            value={name}
+                            onChange={e => setName(e.target.value)}
                             maxLength={50}
                             required
                         />
                     </div>
                     <div>
                         <label className={styles.label}>URL Аватара</label>
-                        <input 
-                            className={commonStyles.input} 
-                            value={avatarUrl} 
-                            onChange={e => setAvatarUrl(e.target.value)} 
+                        <input
+                            className={commonStyles.input}
+                            value={avatarUrl}
+                            onChange={e => setAvatarUrl(e.target.value)}
                             placeholder="https://example.com/avatar.jpg"
                             type="url"
                         />

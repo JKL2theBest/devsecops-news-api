@@ -2,20 +2,20 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { newsApi, commentsApi } from '../api';
 import { useAuth } from '../context/AuthContext';
-import commonStyles from '../styles/Common.module.css'; 
+import commonStyles from '../styles/Common.module.css';
 import styles from './NewsDetail.module.css';
 
 export default function NewsDetailPage() {
     const { id } = useParams();
     const { user } = useAuth();
     const navigate = useNavigate();
-    
+
     const [newsItem, setNewsItem] = useState(null);
     const [comments, setComments] = useState([]);
-    
+
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(true);
-    
+
     const [isEditingNews, setIsEditingNews] = useState(false);
     const [editNewsTitle, setEditNewsTitle] = useState('');
     const [editNewsBody, setEditNewsBody] = useState('');
@@ -30,13 +30,13 @@ export default function NewsDetailPage() {
                     newsApi.getOne(id),
                     commentsApi.getAll(id)
                 ]);
-                
+
                 setNewsItem(newsRes.data);
                 setEditNewsTitle(newsRes.data.title);
-                
+
                 const content = newsRes.data.content;
                 setEditNewsBody(content.body || content.text || (typeof content === 'string' ? content : JSON.stringify(content)));
-                
+
                 setComments(commentsRes.data);
             } catch (error) {
                 console.error("Error loading news details:", error);
@@ -124,22 +124,22 @@ export default function NewsDetailPage() {
 
     return (
         <div className={commonStyles.card} style={{marginTop: '2rem'}}>
-            
+
             {/* РЕДАКТИРОВАНИЕ НОВОСТИ */}
             {isEditingNews ? (
                 <form onSubmit={handleUpdateNews} className={commonStyles.formGroup}>
                     <h2 className={commonStyles.title}>Редактирование</h2>
-                    <input 
-                        className={commonStyles.input} 
-                        value={editNewsTitle} 
-                        onChange={e => setEditNewsTitle(e.target.value)} 
-                        required 
+                    <input
+                        className={commonStyles.input}
+                        value={editNewsTitle}
+                        onChange={e => setEditNewsTitle(e.target.value)}
+                        required
                     />
-                    <textarea 
-                        className={`${commonStyles.input} ${styles.editNewsTextarea}`} 
-                        value={editNewsBody} 
-                        onChange={e => setEditNewsBody(e.target.value)} 
-                        required 
+                    <textarea
+                        className={`${commonStyles.input} ${styles.editNewsTextarea}`}
+                        value={editNewsBody}
+                        onChange={e => setEditNewsBody(e.target.value)}
+                        required
                     />
                     <div className={styles.editActions}>
                         <button type="button" className={`${commonStyles.buttonSecondary} ${styles.btnAuto}`} onClick={() => setIsEditingNews(false)}>Отмена</button>
@@ -171,7 +171,7 @@ export default function NewsDetailPage() {
                         <h3>Комментарии</h3>
                         <span className={styles.commentsCount}>{comments.length}</span>
                     </div>
-                    
+
                     <div className={styles.commentsList}>
                         {comments.map(comment => (
                             <div key={comment.id} className={styles.commentItem}>
@@ -183,10 +183,10 @@ export default function NewsDetailPage() {
                                 {/* ЛОГИКА РЕДАКТИРОВАНИЯ КОММЕНТАРИЯ */}
                                 {editingCommentId === comment.id ? (
                                     <div className={styles.editCommentWrapper}>
-                                        <textarea 
-                                            className={commonStyles.input} 
-                                            value={editCommentText} 
-                                            onChange={e => setEditCommentText(e.target.value)} 
+                                        <textarea
+                                            className={commonStyles.input}
+                                            value={editCommentText}
+                                            onChange={e => setEditCommentText(e.target.value)}
                                             rows={2}
                                         />
                                         <div className={styles.editCommentActions}>
@@ -199,7 +199,7 @@ export default function NewsDetailPage() {
                                         <p className={styles.commentText}>{comment.text}</p>
                                         <div className={styles.commentActions}>
                                             {(user?.role === 'admin' || user?.id === comment.author.id) && (
-                                                <button 
+                                                <button
                                                     className={`${styles.btnTextAction} ${styles.textAccent}`}
                                                     onClick={() => startEditComment(comment)}
                                                 >
@@ -207,7 +207,7 @@ export default function NewsDetailPage() {
                                                 </button>
                                             )}
                                             {(user?.role === 'admin' || user?.id === comment.author.id) && (
-                                                <button 
+                                                <button
                                                     className={`${styles.btnTextAction} ${styles.textDanger}`}
                                                     onClick={() => handleDeleteComment(comment.id)}
                                                 >
@@ -223,13 +223,13 @@ export default function NewsDetailPage() {
 
                     {user ? (
                         <form onSubmit={handleCommentSubmit} className={commonStyles.formGroup}>
-                            <textarea 
-                                className={commonStyles.input} 
-                                value={newComment} 
-                                onChange={e => setNewComment(e.target.value)} 
-                                placeholder="Написать комментарий..." 
-                                rows="3" 
-                                required 
+                            <textarea
+                                className={commonStyles.input}
+                                value={newComment}
+                                onChange={e => setNewComment(e.target.value)}
+                                placeholder="Написать комментарий..."
+                                rows="3"
+                                required
                             />
                             <button type="submit" className={`${commonStyles.button} ${styles.btnAuto}`} style={{alignSelf: 'flex-end'}}>Отправить</button>
                         </form>

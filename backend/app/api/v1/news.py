@@ -1,17 +1,19 @@
 import uuid
-from typing import List, Annotated
-from fastapi import APIRouter, status, Depends, HTTPException
-from app.schemas.news import NewsCreateIn, NewsResponse, NewsUpdate
-from app.models.news import News
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
+
 from app.api.dependencies import (
-    NewsServiceDep,
-    NewsRepoDep,
     CurrentUserDep,
+    NewsRepoDep,
+    NewsServiceDep,
     get_news_for_update,
     require_role,
 )
-from app.schemas.role import UserRole
+from app.models.news import News
 from app.models.user import User
+from app.schemas.news import NewsCreateIn, NewsResponse, NewsUpdate
+from app.schemas.role import UserRole
 
 router = APIRouter(prefix="/news", tags=["news"])
 
@@ -28,7 +30,7 @@ async def create_news(
     return await service.create_news(news_data, current_user)
 
 
-@router.get("/", response_model=List[NewsResponse])
+@router.get("/", response_model=list[NewsResponse])
 async def get_all_news(
     news_repo: NewsRepoDep,
     current_user: CurrentUserDep,

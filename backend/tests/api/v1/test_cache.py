@@ -1,8 +1,8 @@
 import pytest
-from httpx import AsyncClient
-from redis.asyncio import Redis as AsyncRedis
 from app.repositories.sqlalchemy.news import NewsRepository
 from app.repositories.sqlalchemy.user import UserRepository
+from httpx import AsyncClient
+from redis.asyncio import Redis as AsyncRedis
 
 pytestmark = pytest.mark.asyncio
 

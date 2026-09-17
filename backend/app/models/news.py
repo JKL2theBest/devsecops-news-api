@@ -1,15 +1,17 @@
-import uuid
 import datetime
+import uuid
 from typing import TYPE_CHECKING  # для ruff
-from sqlalchemy import String, DateTime, func, ForeignKey, JSON
+
+from sqlalchemy import JSON, DateTime, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID as pgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.db.session import Base
 
 # для ruff
 if TYPE_CHECKING:
-    from .user import User
     from .comment import Comment
+    from .user import User
 
 
 class News(Base):

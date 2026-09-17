@@ -1,13 +1,15 @@
 import uuid
+
+import structlog
 from fastapi import HTTPException, status
 from redis.asyncio import Redis
-from app.repositories.sqlalchemy.user import UserRepository
-from app.schemas.user import UserCreate, UserUpdate, UserResponse
-from app.models.user import User
-from app.services.base import BaseService
-from app.core.security import hash_password
-import structlog
+
 from app.core.metrics import USERS_REGISTERED_TOTAL
+from app.core.security import hash_password
+from app.models.user import User
+from app.repositories.sqlalchemy.user import UserRepository
+from app.schemas.user import UserCreate, UserResponse, UserUpdate
+from app.services.base import BaseService
 
 logger = structlog.get_logger()
 

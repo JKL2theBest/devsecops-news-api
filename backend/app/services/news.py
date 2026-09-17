@@ -1,15 +1,16 @@
 import uuid
+
+import structlog
+from fastapi import HTTPException, status
 from redis.asyncio import Redis
 
-from fastapi import HTTPException, status
+from app.core.metrics import NEWS_CREATED_TOTAL
 from app.models.news import News
 from app.models.user import User
 from app.repositories.sqlalchemy.news import NewsRepository
-from app.schemas.news import NewsCreate, NewsCreateIn, NewsUpdate, NewsResponse
+from app.schemas.news import NewsCreate, NewsCreateIn, NewsResponse, NewsUpdate
 from app.services.base import BaseService
 from app.worker.tasks import send_new_news_notification
-from app.core.metrics import NEWS_CREATED_TOTAL
-import structlog
 
 logger = structlog.get_logger()
 

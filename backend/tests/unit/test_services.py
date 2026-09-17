@@ -1,16 +1,16 @@
-import pytest
-import uuid
 import asyncio
+import uuid
 from unittest.mock import AsyncMock, MagicMock
-from fastapi import HTTPException
-from fakeredis.aioredis import FakeRedis
 
-from app.services.users import UserService
-from app.services.news import NewsService
-from app.schemas.user import UserCreate
-from app.schemas.news import NewsResponse
+import pytest
 from app.models.user import User
+from app.schemas.news import NewsResponse
 from app.schemas.role import UserRole
+from app.schemas.user import UserCreate
+from app.services.news import NewsService
+from app.services.users import UserService
+from fakeredis.aioredis import FakeRedis
+from fastapi import HTTPException
 
 
 # Вспомогательная функция для запуска асинхронного кода

@@ -55,7 +55,7 @@ axiosInstance.interceptors.response.use(
 
             originalRequest._retry = true;
             isRefreshing = true;
-            
+
             const refreshToken = localStorage.getItem('refresh_token');
 
             if (!refreshToken) {
@@ -76,9 +76,9 @@ axiosInstance.interceptors.response.use(
                 }
 
                 axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-                
+
                 processQueue(null, access_token);
-                
+
                 return axiosInstance(originalRequest);
             } catch (refreshError) {
                 processQueue(refreshError, null);
@@ -91,7 +91,7 @@ axiosInstance.interceptors.response.use(
                 isRefreshing = false;
             }
         }
-        
+
         return Promise.reject(error);
     }
 );

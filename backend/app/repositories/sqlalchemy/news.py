@@ -1,4 +1,5 @@
 from sqlalchemy.orm import selectinload
+
 from app.models.news import News
 from app.repositories.sqlalchemy.base import SQLAlchemyRepository
 from app.schemas.news import NewsCreate, NewsUpdate

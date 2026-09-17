@@ -26,27 +26,27 @@ export default function LoginPage() {
         <div className={styles.authCard}>
             <h2 className={styles.title}>Вход</h2>
             {error && <div className={styles.error}>{error}</div>}
-            
+
             <form onSubmit={handleSubmit} className={styles.formGroup}>
-                <input 
-                    type="email" 
+                <input
+                    type="email"
                     className={styles.input}
-                    placeholder="Email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                 />
-                <input 
-                    type="password" 
+                <input
+                    type="password"
                     className={styles.input}
-                    placeholder="Пароль" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="Пароль"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                 />
                 <button type="submit" className={styles.button}>Войти</button>
             </form>
-            
+
             <p className={styles.linkText}>
                 Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
             </p>

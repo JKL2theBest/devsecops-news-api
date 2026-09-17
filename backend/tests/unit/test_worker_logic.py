@@ -1,8 +1,9 @@
-import uuid
 import asyncio
 import datetime
-from unittest.mock import AsyncMock, MagicMock, ANY
-from app.worker.tasks import _send_notification_async, _send_digest_async
+import uuid
+from unittest.mock import ANY, AsyncMock, MagicMock
+
+from app.worker.tasks import _send_digest_async, _send_notification_async
 from fakeredis.aioredis import FakeRedis
 
 

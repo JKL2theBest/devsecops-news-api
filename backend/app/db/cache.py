@@ -1,5 +1,7 @@
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import redis.asyncio as aioredis
+
 from app.core.config import settings
 
 redis_pool = None

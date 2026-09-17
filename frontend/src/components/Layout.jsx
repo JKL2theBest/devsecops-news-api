@@ -19,7 +19,7 @@ export default function Layout() {
         <div>
             <nav className={styles.navbar}>
                 <Link to="/" className={styles.logo}>ITMO News</Link>
-                
+
                 <div className={styles.links}>
                     <Link to="/" className={styles.link}>Новости</Link>
                     {canCreate && (

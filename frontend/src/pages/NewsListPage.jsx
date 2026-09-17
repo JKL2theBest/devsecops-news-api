@@ -10,7 +10,7 @@ export default function NewsListPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    
+
     const { loading: authLoading } = useAuth();
 
     useEffect(() => {
@@ -51,15 +51,15 @@ export default function NewsListPage() {
                         <br />Пожалуйста, войдите в свой аккаунт.
                     </p>
                     <div style={{display: 'flex', justifyContent: 'center', gap: '1rem'}}>
-                        <button 
-                            className={commonStyles.button} 
+                        <button
+                            className={commonStyles.button}
                             style={{maxWidth: '150px'}}
                             onClick={() => navigate('/login')}
                         >
                             Войти
                         </button>
-                        <button 
-                            className={commonStyles.buttonSecondary} 
+                        <button
+                            className={commonStyles.buttonSecondary}
                             style={{maxWidth: '150px'}}
                             onClick={() => navigate('/register')}
                         >
@@ -86,7 +86,7 @@ export default function NewsListPage() {
             <h1 style={{marginBottom: '1.5rem', fontSize: '2rem', fontWeight: '600', color: 'var(--win-text-main)'}}>
                 Последние новости
             </h1>
-            
+
             {news.length === 0 ? (
                 <div className={commonStyles.card} style={{textAlign: 'center', color: 'var(--win-text-sec)'}}>
                     Список новостей пуст.
@@ -101,7 +101,7 @@ export default function NewsListPage() {
                             <div className={styles.newsMeta}>
                                 <span style={{fontWeight: '600', color: 'var(--win-text-main)'}}>
                                     {item.author.name}
-                                </span> 
+                                </span>
                                 <span style={{margin: '0 8px'}}>•</span>
                                 <span>{new Date(item.published_at).toLocaleDateString()}</span>
                             </div>

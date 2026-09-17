@@ -1,9 +1,11 @@
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any
+
 import jwt
 from argon2 import PasswordHasher
+
 from app.core.config import settings
-import secrets
 
 ph = PasswordHasher()
 

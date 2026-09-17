@@ -1,7 +1,8 @@
 import logging
-import sys
-import structlog
 import os
+import sys
+
+import structlog
 
 
 def configure_logger():

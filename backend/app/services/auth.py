@@ -1,5 +1,5 @@
 import json
-from datetime import timedelta, timezone, datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from fastapi import HTTPException, status
@@ -9,11 +9,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.security import (
-    create_access_token,
-    create_refresh_token,
-    verify_password,
-)
+from app.core.security import create_access_token, create_refresh_token, verify_password
 from app.models.user import User
 from app.repositories.sqlalchemy.user import UserRepository
 

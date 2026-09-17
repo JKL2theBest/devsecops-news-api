@@ -1,6 +1,8 @@
-import uuid
 import datetime
-from pydantic import BaseModel, EmailStr, ConfigDict
+import uuid
+
+from pydantic import BaseModel, ConfigDict, EmailStr
+
 from .role import UserRole
 
 

@@ -1,9 +1,12 @@
-from typing import Generic, Sequence, Type, TypeVar
 import uuid
+from collections.abc import Sequence
+from typing import Generic, TypeVar
+
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Query
-from pydantic import BaseModel
+
 from app.db.session import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -12,7 +15,7 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
 class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    model: Type[ModelType] = None
+    model: type[ModelType] = None
     _load_options: Sequence[Query] = []  # Для "жадной" загрузки (Eager loading)
 
     def __init__(self, session: AsyncSession):

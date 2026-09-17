@@ -28,35 +28,35 @@ export default function RegisterPage() {
         <div className={styles.authCard}>
             <h2 className={styles.title}>Регистрация</h2>
             {error && <div className={styles.error}>{error}</div>}
-            
+
             <form onSubmit={handleSubmit} className={styles.formGroup}>
-                <input 
-                    type="text" 
+                <input
+                    type="text"
                     className={styles.input}
-                    placeholder="Имя пользователя" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
+                    placeholder="Имя пользователя"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     required
                 />
-                <input 
-                    type="email" 
+                <input
+                    type="email"
                     className={styles.input}
-                    placeholder="Email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                 />
-                <input 
-                    type="password" 
+                <input
+                    type="password"
                     className={styles.input}
-                    placeholder="Пароль" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="Пароль"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                 />
                 <button type="submit" className={styles.button}>Зарегистрироваться</button>
             </form>
-            
+
             <p className={styles.linkText}>
                 Уже есть аккаунт? <Link to="/login">Войти</Link>
             </p>

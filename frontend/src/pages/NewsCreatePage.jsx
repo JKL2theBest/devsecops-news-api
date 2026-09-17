@@ -15,7 +15,7 @@ export default function NewsCreatePage() {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-        
+
         try {
             await newsApi.create({
                 title,
@@ -39,46 +39,46 @@ export default function NewsCreatePage() {
         <div className={commonStyles.container}>
             <div className={commonStyles.card} style={{maxWidth: '700px', margin: '0 auto'}}>
                 <h2 className={commonStyles.title}>Новая публикация</h2>
-                
+
                 {error && <div className={commonStyles.error}>{error}</div>}
-                
+
                 <form onSubmit={handleSubmit} className={commonStyles.formGroup}>
                     <div>
                         <label className={styles.label}>Заголовок</label>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className={commonStyles.input}
-                            placeholder="Введите заголовок новости" 
-                            value={title} 
-                            onChange={e => setTitle(e.target.value)} 
+                            placeholder="Введите заголовок новости"
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
                             required
                             autoFocus
                         />
                     </div>
-                    
+
                     <div>
                         <label className={styles.label}>Содержание</label>
-                        <textarea 
+                        <textarea
                             className={`${commonStyles.input} ${styles.textarea}`}
-                            placeholder="Напишите текст новости здесь..." 
-                            value={body} 
-                            onChange={e => setBody(e.target.value)} 
+                            placeholder="Напишите текст новости здесь..."
+                            value={body}
+                            onChange={e => setBody(e.target.value)}
                             rows={12}
                             required
                         />
                     </div>
 
                     <div className={styles.actions}>
-                        <button 
-                            type="button" 
+                        <button
+                            type="button"
                             className={`${commonStyles.buttonSecondary} ${styles.btnAutoWidth}`}
                             onClick={() => navigate('/')}
                         >
                             Отмена
                         </button>
-                        
-                        <button 
-                            type="submit" 
+
+                        <button
+                            type="submit"
                             className={`${commonStyles.button} ${styles.btnAutoWidth}`}
                             disabled={isLoading}
                         >

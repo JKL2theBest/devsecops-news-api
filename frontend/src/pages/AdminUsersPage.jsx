@@ -70,10 +70,10 @@ export default function AdminUsersPage() {
                                     <div className={styles.userCell}>
                                         {/* БЕЗОПАСНЫЙ АВАТАР */}
                                         {u.avatar_url ? (
-                                            <img 
-                                                src={u.avatar_url} 
-                                                alt={u.name} 
-                                                className={styles.avatarSmall} 
+                                            <img
+                                                src={u.avatar_url}
+                                                alt={u.name}
+                                                className={styles.avatarSmall}
                                                 onError={(e) => { e.target.style.display = 'none' }}
                                             />
                                         ) : (
@@ -95,7 +95,7 @@ export default function AdminUsersPage() {
                                 </td>
                                 <td className={styles.td}>
                                     {u.id !== user.id && (
-                                        <button 
+                                        <button
                                             onClick={() => handleDelete(u.id)}
                                             className={`${commonStyles.buttonDanger} ${styles.actionBtn}`}
                                         >

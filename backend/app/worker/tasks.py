@@ -3,16 +3,15 @@ import uuid
 from datetime import datetime, timedelta
 
 import redis.asyncio as aioredis
+import structlog
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
-
-from app.models import User, News
-from app.worker.celery_app import celery_app
-import structlog
 from app.core.metrics import NOTIFICATIONS_SENT_TOTAL
+from app.models import News, User
+from app.worker.celery_app import celery_app
 
 logger = structlog.get_logger()
 

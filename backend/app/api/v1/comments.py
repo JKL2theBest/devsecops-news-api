@@ -1,14 +1,16 @@
 import uuid
-from typing import List, Annotated, Optional
-from fastapi import APIRouter, status, Depends, Query
-from app.schemas.comment import CommentCreateIn, CommentResponse, CommentUpdate
-from app.models.comment import Comment
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Query, status
+
 from app.api.dependencies import (
-    CommentServiceDep,
     CommentRepoDep,
+    CommentServiceDep,
     CurrentUserDep,
     get_comment_for_update,
 )
+from app.models.comment import Comment
+from app.schemas.comment import CommentCreateIn, CommentResponse, CommentUpdate
 
 router = APIRouter(prefix="/comments", tags=["comments"])
 
@@ -23,15 +25,13 @@ async def create_comment(
     return await service.create_comment(comment_data, author=current_user)
 
 
-@router.get("/", response_model=List[CommentResponse])
+@router.get("/", response_model=list[CommentResponse])
 async def get_all_comments(
     comment_repo: CommentRepoDep,
     current_user: CurrentUserDep,
     skip: int = 0,
     limit: int = 100,
-    news_id: Optional[uuid.UUID] = Query(
-        None, description="Filter comments by news ID"
-    ),
+    news_id: uuid.UUID | None = Query(None, description="Filter comments by news ID"),
 ):
     """Получить список комментариев."""
     return await comment_repo.get_multi(skip=skip, limit=limit, news_id=news_id)

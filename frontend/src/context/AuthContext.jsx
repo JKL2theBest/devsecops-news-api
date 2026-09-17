@@ -36,10 +36,10 @@ export const AuthProvider = ({ children }) => {
                 try {
                     const response = await authApi.refreshToken(refreshToken);
                     const { access_token, refresh_token: newRefreshToken } = response.data;
-                    
+
                     localStorage.setItem('access_token', access_token);
                     if (newRefreshToken) localStorage.setItem('refresh_token', newRefreshToken);
-                    
+
                     await fetchProfile(access_token);
                 } catch (error) {
                     console.error("Init refresh failed:", error);

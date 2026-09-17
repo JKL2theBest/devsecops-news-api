@@ -1,7 +1,8 @@
 import asyncio
-from unittest.mock import MagicMock, AsyncMock, patch
-import pytest
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import app.db.cache as cache_module
+import pytest
 
 
 def run_async(coro):
@@ -64,11 +65,13 @@ def test_get_redis_client_flow():
 
         mock_redis_cls = MagicMock(return_value=mock_context_manager)
 
-        with patch(
-            "app.db.cache.aioredis.ConnectionPool.from_url",
-            return_value=mock_pool_instance,
-        ), patch("app.db.cache.aioredis.Redis", new=mock_redis_cls):
-
+        with (
+            patch(
+                "app.db.cache.aioredis.ConnectionPool.from_url",
+                return_value=mock_pool_instance,
+            ),
+            patch("app.db.cache.aioredis.Redis", new=mock_redis_cls),
+        ):
             gen = cache_module.get_redis_client()
 
             client = await gen.__anext__()
@@ -98,7 +101,6 @@ def test_get_redis_client_connection_error():
         cache_module.redis_pool = None
 
         with patch("app.db.cache.init_redis_pool") as mock_init:
-
             gen = cache_module.get_redis_client()
 
             with pytest.raises(ConnectionError) as exc:

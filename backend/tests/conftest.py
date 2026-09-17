@@ -1,11 +1,10 @@
-# ruff: noqa: E402
+import asyncio
+import datetime
 import os
 import shutil
 import tempfile
-import asyncio
 import uuid
-from typing import AsyncGenerator
-import datetime
+from collections.abc import AsyncGenerator
 
 # Нужен для разрешения конфликтов вложенных циклов
 import nest_asyncio
@@ -18,28 +17,22 @@ os.environ["PROMETHEUS_MULTIPROC_DIR"] = TEST_METRICS_DIR
 
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy import select, text
-from sqlalchemy.engine import create_engine as create_sync_engine
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
-from sqlalchemy.pool import NullPool
-from fastapi import FastAPI
-from fakeredis.aioredis import FakeRedis
-
 from alembic import command
 from alembic.config import Config
-
 from app.core.config import settings
+from app.core.security import hash_password
 from app.db.cache import get_redis_client
 from app.db.session import get_db_session
 from app.main import app
 from app.models.user import User
 from app.schemas.role import UserRole
-from app.core.security import hash_password
+from fakeredis.aioredis import FakeRedis
+from fastapi import FastAPI
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy import select, text
+from sqlalchemy.engine import create_engine as create_sync_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
 
 # --- Явное определение Event Loop ---
@@ -83,12 +76,10 @@ def apply_migrations():
         # Критично для E2E тестов, которые ожидают наличие админа
         admin_id = uuid.uuid4()
         conn.execute(
-            text(
-                """
+            text("""
             INSERT INTO users (id, name, email, hashed_password, role, registered_at)
             VALUES (:id, :name, :email, :password, :role, :reg_at)
-            """
-            ),
+            """),
             {
                 "id": admin_id,
                 "name": "Admin User",

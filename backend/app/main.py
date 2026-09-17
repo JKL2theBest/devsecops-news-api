@@ -1,17 +1,18 @@
-import time
-import structlog
 import os
+import time
 from contextlib import asynccontextmanager
+
+import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from prometheus_client import multiprocess, CollectorRegistry, make_asgi_app
-from prometheus_fastapi_instrumentator import Instrumentator
 from hawk_python_sdk import Hawk
+from prometheus_client import CollectorRegistry, make_asgi_app, multiprocess
+from prometheus_fastapi_instrumentator import Instrumentator
 
-from app.api.v1 import users, news, comments, auth
-from app.db.cache import init_redis_pool, close_redis_pool
+from app.api.v1 import auth, comments, news, users
 from app.core.config import settings
 from app.core.logger import configure_logger
+from app.db.cache import close_redis_pool, init_redis_pool
 
 # --- ОБЩАЯ НАСТРОЙКА ---
 configure_logger()

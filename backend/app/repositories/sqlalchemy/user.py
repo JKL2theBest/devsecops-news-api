@@ -1,4 +1,5 @@
 from sqlalchemy import select
+
 from app.models.user import User
 from app.repositories.sqlalchemy.base import SQLAlchemyRepository
 from app.schemas.user import UserCreate, UserUpdate
