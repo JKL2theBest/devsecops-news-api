@@ -6,7 +6,7 @@ from httpx import AsyncClient
 pytestmark = pytest.mark.asyncio
 
 
-async def test_invalid_token_format(client: AsyncClient):
+async def test_invalid_token_format(client: AsyncClient) -> None:
     """Тест: запрос с некорректным форматом токена возвращает 401."""
     headers = {"Authorization": "NotBearer at all"}
     response = await client.get("/api/v1/users/", headers=headers)
@@ -14,7 +14,7 @@ async def test_invalid_token_format(client: AsyncClient):
     assert "Not authenticated" in response.json()["detail"]
 
 
-async def test_token_for_non_existent_user(client: AsyncClient, mocker):
+async def test_token_for_non_existent_user(client: AsyncClient, mocker) -> None:
     """Тест: токен для удаленного/несуществующего юзера возвращает 401."""
     mocker.patch("jwt.decode", return_value={"sub": str(uuid.uuid4())})
 

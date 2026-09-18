@@ -64,4 +64,21 @@ line-length = 120
 target-version = "py312"
 
 [tool.ruff.lint]
-#
+#select = ["ALL"]
+ignore = [
+    "D100",
+    "D101",
+    "D103",
+    "D104",
+    "D203",
+    "D205",
+    "D213",
+    "CPY001",
+    "F403",
+    "ERA001",
+    "RUF002",
+    "RUF003",
+    "INP001",
+
+    "S110",
+]

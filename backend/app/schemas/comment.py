@@ -7,7 +7,7 @@ from .user import UserResponse
 
 
 class NewsInCommentResponse(BaseModel):
-    """Легковесный NewsResponse"""
+    """Легковесный NewsResponse."""
 
     id: uuid.UUID
     title: str

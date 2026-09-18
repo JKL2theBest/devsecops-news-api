@@ -9,13 +9,13 @@ pytestmark = pytest.mark.asyncio
 
 
 @pytest.mark.parametrize(
-    "name, email, password, status_code",
+    ("name", "email", "password", "status_code"),
     [
         ("test_user", f"{uuid.uuid4()}@test.com", "password123", 201),
         ("test_user_repeat", "user@test.com", "password123", 400),
     ],
 )
-async def test_register_user(client: AsyncClient, name, email, password, status_code):
+async def test_register_user(client: AsyncClient, name, email, password, status_code) -> None:
     """Тест регистрации: успех и дубликат email."""
     if "repeat" in name:
         await client.post(
@@ -33,13 +33,13 @@ async def test_register_user(client: AsyncClient, name, email, password, status_
 
 
 @pytest.mark.parametrize(
-    "email, password, status_code, detail",
+    ("email", "password", "status_code", "detail"),
     [
         ("wrong@user.com", "password123", 401, "Incorrect email or password"),
         ("user@test.com", "wrongpassword", 401, "Incorrect email or password"),
     ],
 )
-async def test_login_failures(client: AsyncClient, email, password, status_code, detail):
+async def test_login_failures(client: AsyncClient, email, password, status_code, detail) -> None:
     """Тест неудачных попыток входа."""
     await client.post(
         "/api/v1/auth/register",
@@ -50,7 +50,7 @@ async def test_login_failures(client: AsyncClient, email, password, status_code,
     assert detail in response.json()["detail"]
 
 
-async def test_login_and_get_sessions(user_client: AsyncClient):
+async def test_login_and_get_sessions(user_client: AsyncClient) -> None:
     """Тест успешного логина и получения списка сессий."""
     response = await user_client.get("/api/v1/auth/sessions/me")
     assert response.status_code == 200
@@ -59,7 +59,7 @@ async def test_login_and_get_sessions(user_client: AsyncClient):
     assert "user_agent" in sessions[0]
 
 
-async def test_refresh_and_logout(user_client: AsyncClient):
+async def test_refresh_and_logout(user_client: AsyncClient) -> None:
     """Тест полного флоу refresh и logout."""
     refresh_token = user_client.refresh_token
 
@@ -78,19 +78,19 @@ async def test_refresh_and_logout(user_client: AsyncClient):
     assert final_refresh_response.status_code == 401
 
 
-async def test_refresh_invalid_token(client: AsyncClient):
+async def test_refresh_invalid_token(client: AsyncClient) -> None:
     """Тест: попытка рефреша с невалидным токеном."""
     response = await client.post("/api/v1/auth/refresh", json={"refresh_token": "invalid_token"})
     assert response.status_code == 401
 
 
-async def test_github_login_redirect(client: AsyncClient):
+async def test_github_login_redirect(client: AsyncClient) -> None:
     """Тест: ручка логина GitHub возвращает редирект."""
     response = await client.get("/api/v1/auth/github/login", follow_redirects=False)
     assert response.status_code == 303
 
 
-async def test_github_callback_new_user(client: AsyncClient, mocker):
+async def test_github_callback_new_user(client: AsyncClient, mocker) -> None:
     """Тест коллбэка GitHub для нового пользователя."""
     mock_openid = OpenID(
         id="github_id_123",
@@ -108,7 +108,7 @@ async def test_github_callback_new_user(client: AsyncClient, mocker):
     assert "access_token" in tokens
 
 
-async def test_github_callback_existing_user(client: AsyncClient, mocker):
+async def test_github_callback_existing_user(client: AsyncClient, mocker) -> None:
     """Тест коллбэка GitHub для существующего пользователя."""
     existing_email = "existing_github_user@test.com"
     await client.post(
@@ -131,7 +131,7 @@ async def test_github_callback_existing_user(client: AsyncClient, mocker):
     assert "access_token" in tokens
 
 
-async def test_github_callback_process_error(client: AsyncClient, mocker):
+async def test_github_callback_process_error(client: AsyncClient, mocker) -> None:
     """Тест: коллбэк GitHub возвращает ошибку, если verify_and_process вернул None."""
     mocker.patch(
         "fastapi_sso.sso.github.GithubSSO.verify_and_process",

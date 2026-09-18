@@ -1,4 +1,4 @@
-"""add auth and roles
+"""add auth and roles.
 
 Revision ID: d832b397b98d
 Revises: 97e0424909f9

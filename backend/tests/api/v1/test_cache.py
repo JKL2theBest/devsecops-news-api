@@ -22,7 +22,7 @@ async def test_news_get_is_cached(
     user_client: AsyncClient,
     news_item_for_cache: dict,
     mocker,
-):
+) -> None:
     """Тест: проверка кэширования новости."""
     news_id = news_item_for_cache["id"]
     spy = mocker.spy(NewsRepository, "get_by_id")
@@ -39,8 +39,10 @@ async def test_news_get_is_cached(
 
 
 async def test_news_cache_invalidated_on_update(
-    author_client: AsyncClient, news_item_for_cache: dict, test_redis: AsyncRedis
-):
+    author_client: AsyncClient,
+    news_item_for_cache: dict,
+    test_redis: AsyncRedis,
+) -> None:
     """Тест: кэш новости инвалидируется после ее обновления."""
     news_id = news_item_for_cache["id"]
     cache_key = f"news:{news_id}"
@@ -60,7 +62,7 @@ async def test_user_get_is_cached(
     admin_client: AsyncClient,
     user_client: AsyncClient,
     mocker,
-):
+) -> None:
     """Тест: запрос к пользователю кэшируется."""
     target_user_id = user_client.user_data["id"]
     spy = mocker.spy(UserRepository, "get_by_id")

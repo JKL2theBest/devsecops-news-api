@@ -22,17 +22,13 @@ logger = structlog.get_logger()
     retry_backoff=True,
     retry_kwargs={"max_retries": 5},
 )
-def send_new_news_notification(self, news_id: str):
-    """
-    Синхронная задача-обертка, которая запускает асинхронную логику.
-    """
+def send_new_news_notification(self, news_id: str) -> None:
+    """Синхронная задача-обертка, которая запускает асинхронную логику."""
     asyncio.run(_send_notification_async(news_id))
 
 
-async def _send_notification_async(news_id: str):
-    """
-    Асинхронная логика для отправки уведомлений.
-    """
+async def _send_notification_async(news_id: str) -> None:
+    """Асинхронная логика для отправки уведомлений."""
     engine = create_async_engine(settings.DATABASE_URL, echo=False)
     local_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
@@ -75,12 +71,12 @@ async def _send_notification_async(news_id: str):
     retry_backoff=True,
     retry_kwargs={"max_retries": 3},
 )
-def send_weekly_digest(self):
+def send_weekly_digest(self) -> None:
     """Синхронная задача-обертка для еженедельного дайджеста."""
     asyncio.run(_send_digest_async())
 
 
-async def _send_digest_async():
+async def _send_digest_async() -> None:
     """Асинхронная логика для отправки дайджеста."""
     engine = create_async_engine(settings.DATABASE_URL, echo=False)
     local_session_maker = async_sessionmaker(engine, expire_on_commit=False)
@@ -103,7 +99,7 @@ async def _send_digest_async():
                 select(News)
                 .filter(News.published_at >= one_week_ago)
                 .options(selectinload(News.author))
-                .order_by(News.published_at.desc())
+                .order_by(News.published_at.desc()),
             )
             recent_news = news_result.scalars().all()
 

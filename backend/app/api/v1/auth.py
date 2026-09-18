@@ -98,7 +98,7 @@ async def refresh_access_token(
 async def logout(
     request_body: RefreshTokenRequest,
     service: AuthServiceDep,
-):
+) -> None:
     """Выход из системы (удаление refresh-токена)."""
     await service.logout(refresh_token=request_body.refresh_token)
 

@@ -1,4 +1,4 @@
-"""remove refresh_tokens
+"""remove refresh_tokens.
 
 Revision ID: bcf9c0bd437b
 Revises: d832b397b98d

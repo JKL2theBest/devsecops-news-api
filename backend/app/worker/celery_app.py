@@ -12,10 +12,8 @@ configure_logger()
 
 
 @worker_process_init.connect
-def worker_init(**_):
-    """
-    Готовит директорию для метрик для каждого дочернего процесса Celery.
-    """
+def worker_init(**_) -> None:
+    """Готовит директорию для метрик для каждого дочернего процесса Celery."""
     prometheus_dir = os.environ.get("PROMETHEUS_MULTIPROC_DIR")
     if prometheus_dir and not os.path.exists(prometheus_dir):
         os.makedirs(prometheus_dir, exist_ok=True)

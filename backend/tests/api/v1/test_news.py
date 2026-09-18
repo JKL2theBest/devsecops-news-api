@@ -4,7 +4,7 @@ from httpx import AsyncClient
 pytestmark = pytest.mark.asyncio
 
 
-async def test_user_cannot_create_news(user_client: AsyncClient):
+async def test_user_cannot_create_news(user_client: AsyncClient) -> None:
     """Тест: обычный пользователь не может создать новость."""
     response = await user_client.post(
         "/api/v1/news/",
@@ -13,7 +13,7 @@ async def test_user_cannot_create_news(user_client: AsyncClient):
     assert response.status_code == 403
 
 
-async def test_author_can_create_news(author_client: AsyncClient):
+async def test_author_can_create_news(author_client: AsyncClient) -> None:
     """Тест: верифицированный автор может создать новость."""
     response = await author_client.post(
         "/api/v1/news/",
@@ -25,13 +25,13 @@ async def test_author_can_create_news(author_client: AsyncClient):
     assert data["author"]["role"] == "verified_author"
 
 
-async def test_get_news_unauthorized(client: AsyncClient):
+async def test_get_news_unauthorized(client: AsyncClient) -> None:
     """Тест: неавторизованный пользователь не может получить список новостей."""
     response = await client.get("/api/v1/news/")
     assert response.status_code == 401
 
 
-async def test_get_news_authorized(user_client: AsyncClient):
+async def test_get_news_authorized(user_client: AsyncClient) -> None:
     """Тест: авторизованный пользователь может получить список новостей."""
     response = await user_client.get("/api/v1/news/")
     assert response.status_code == 200
@@ -49,7 +49,7 @@ async def created_news(author_client: AsyncClient) -> dict:
     return response.json()
 
 
-async def test_author_can_update_own_news(author_client: AsyncClient, created_news: dict):
+async def test_author_can_update_own_news(author_client: AsyncClient, created_news: dict) -> None:
     """Тест: автор может обновить свою новость."""
     news_id = created_news["id"]
     response = await author_client.patch(f"/api/v1/news/{news_id}", json={"title": "Updated by Author"})
@@ -57,7 +57,7 @@ async def test_author_can_update_own_news(author_client: AsyncClient, created_ne
     assert response.json()["title"] == "Updated by Author"
 
 
-async def test_author_can_delete_own_news(author_client: AsyncClient):
+async def test_author_can_delete_own_news(author_client: AsyncClient) -> None:
     """Тест: автор может удалить свою новость."""
     response = await author_client.post("/api/v1/news/", json={"title": "To Be Deleted", "content": {}})
     news_id = response.json()["id"]
@@ -70,8 +70,10 @@ async def test_author_can_delete_own_news(author_client: AsyncClient):
 
 
 async def test_permissions_on_other_news(
-    user_client: AsyncClient, author_client: AsyncClient, admin_client: AsyncClient
-):
+    user_client: AsyncClient,
+    author_client: AsyncClient,
+    admin_client: AsyncClient,
+) -> None:
     """Тест: юзер не может менять чужие новости, а админ может."""
     # 1. Автор создает новость
     response = await author_client.post("/api/v1/news/", json={"title": "Ownership Test", "content": {}})

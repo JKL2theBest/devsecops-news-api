@@ -37,11 +37,9 @@ from sqlalchemy.pool import NullPool
 
 
 # --- Явное определение Event Loop ---
-@pytest.fixture(scope="function")
+@pytest.fixture
 def event_loop():
-    """
-    Создает fresh event loop для каждого теста.
-    """
+    """Создает fresh event loop для каждого теста."""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     yield loop
@@ -55,9 +53,7 @@ async_session_maker = async_sessionmaker(engine_test, class_=AsyncSession, expir
 
 @pytest.fixture(scope="session", autouse=True)
 def apply_migrations():
-    """
-    Применяет миграции и чистит данные.
-    """
+    """Применяет миграции и чистит данные."""
     # 1. Миграции
     config = Config("alembic.ini")
     command.upgrade(config, "head")
@@ -121,7 +117,7 @@ async def test_app(test_redis: FakeRedis) -> AsyncGenerator[FastAPI, None]:
     app.dependency_overrides[get_db_session] = override_get_db_session
     app.dependency_overrides[get_redis_client] = override_get_redis_client
 
-    app.router.lifespan_context = cast(Any, None)
+    app.router.lifespan_context = cast("Any", None)
     yield app
 
     app.dependency_overrides.clear()
@@ -137,9 +133,7 @@ async def client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
 
 
 async def _setup_auth_client(app_instance: FastAPI, role: UserRole) -> AsyncClient:
-    """
-    Вспомогательная фабрика для создания авторизованного клиента с определенной ролью.
-    """
+    """Вспомогательная фабрика для создания авторизованного клиента с определенной ролью."""
     transport = ASGITransport(app=app_instance)
     client = AsyncClient(transport=transport, base_url="http://test")
 
@@ -152,7 +146,8 @@ async def _setup_auth_client(app_instance: FastAPI, role: UserRole) -> AsyncClie
     reg_res = await client.post("/api/v1/auth/register", json=user_data)
     if reg_res.status_code != 201:
         await client.aclose()
-        raise RuntimeError(f"Register failed: {reg_res.text}")
+        msg = f"Register failed: {reg_res.text}"
+        raise RuntimeError(msg)
 
     user_id = reg_res.json()["id"]
 
@@ -171,7 +166,8 @@ async def _setup_auth_client(app_instance: FastAPI, role: UserRole) -> AsyncClie
     )
     if login_res.status_code != 200:
         await client.aclose()
-        raise RuntimeError(f"Login failed: {login_res.text}")
+        msg = f"Login failed: {login_res.text}"
+        raise RuntimeError(msg)
 
     tokens = login_res.json()
     client.headers["Authorization"] = f"Bearer {tokens['access_token']}"

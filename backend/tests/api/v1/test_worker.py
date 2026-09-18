@@ -6,10 +6,8 @@ from httpx import AsyncClient
 pytestmark = pytest.mark.asyncio
 
 
-async def test_create_news_sends_notification(author_client: AsyncClient, mocker):
-    """
-    Тест: проверяет, что при создании новости вызывается фоновая задача.
-    """
+async def test_create_news_sends_notification(author_client: AsyncClient, mocker) -> None:
+    """Тест: проверяет, что при создании новости вызывается фоновая задача."""
     mock_task = mocker.patch("app.services.news.send_new_news_notification")
     mock_task.delay = MagicMock()
 

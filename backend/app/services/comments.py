@@ -9,7 +9,7 @@ from app.services.base import BaseService
 
 
 class CommentService(BaseService):
-    def __init__(self, comment_repo: CommentRepository):
+    def __init__(self, comment_repo: CommentRepository) -> None:
         super().__init__(comment_repo)
 
     async def create_comment(self, comment_data: CommentCreateIn, author: User) -> Comment:
@@ -19,8 +19,7 @@ class CommentService(BaseService):
         final_comment_data = CommentCreate(**internal_comment_dict)
 
         try:
-            new_comment = await self.repository.create(final_comment_data)
-            return new_comment
+            return await self.repository.create(final_comment_data)
         except IntegrityError as e:
             error_info = str(e.orig)
             if "comments_news_id_fkey" in error_info:

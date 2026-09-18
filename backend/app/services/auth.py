@@ -17,7 +17,7 @@ from app.repositories.sqlalchemy.user import UserRepository
 class AuthService:
     """Сервис для всей логики, связанной с аутентификацией, с использованием Redis."""
 
-    def __init__(self, user_repo: UserRepository, redis_client: Redis):
+    def __init__(self, user_repo: UserRepository, redis_client: Redis) -> None:
         self.user_repo = user_repo
         self.redis = redis_client
 
@@ -110,7 +110,7 @@ class AuthService:
                         "refresh_token": token_str,
                         "user_agent": session_data.get("user_agent"),
                         "created_at": session_data.get("created_at"),
-                    }
+                    },
                 )
         return sessions_info
 

@@ -18,10 +18,10 @@ def run_async(coro):
     return asyncio.run(coro)
 
 
-def test_create_user_success():
+def test_create_user_success() -> None:
     """Unit: Успешное создание пользователя."""
 
-    async def _test():
+    async def _test() -> None:
         # Локальный Redis, чтобы не зависеть от глобальных фикстур
         redis = FakeRedis(decode_responses=True)
 
@@ -46,10 +46,10 @@ def test_create_user_success():
     run_async(_test())
 
 
-def test_create_user_duplicate_email():
+def test_create_user_duplicate_email() -> None:
     """Unit: Ошибка при дубликате email."""
 
-    async def _test():
+    async def _test() -> None:
         redis = FakeRedis(decode_responses=True)
 
         mock_repo = AsyncMock()
@@ -67,10 +67,10 @@ def test_create_user_duplicate_email():
     run_async(_test())
 
 
-def test_get_news_cache_hit():
+def test_get_news_cache_hit() -> None:
     """Unit: Получение новости из кэша."""
 
-    async def _test():
+    async def _test() -> None:
         redis = FakeRedis(decode_responses=True)
 
         mock_repo = AsyncMock()
@@ -103,10 +103,10 @@ def test_get_news_cache_hit():
     run_async(_test())
 
 
-def test_get_news_db_miss_and_not_found():
+def test_get_news_db_miss_and_not_found() -> None:
     """Unit: Новость не найдена ни в кэше, ни в БД."""
 
-    async def _test():
+    async def _test() -> None:
         redis = FakeRedis(decode_responses=True)
 
         mock_repo = AsyncMock()

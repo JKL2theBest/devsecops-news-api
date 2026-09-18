@@ -127,8 +127,7 @@ def require_role(required_roles: list[UserRole]):
 
 # --- РЕЗОЛВЕРЫ (ПРОВЕРКА ВЛАДЕНИЯ) ---
 async def get_news_for_update(news_id: uuid.UUID, current_user: CurrentUserDep, news_repo: NewsRepoDep) -> News:
-    """
-    Получает новость по ID и проверяет, имеет ли пользователь
+    """Получает новость по ID и проверяет, имеет ли пользователь
     право на ее изменение (автор или админ).
     """
     news = await news_repo.get_by_id(news_id)
@@ -146,8 +145,7 @@ async def get_comment_for_update(
     current_user: CurrentUserDep,
     comment_repo: CommentRepoDep,
 ) -> Comment:
-    """
-    Получает комментарий по ID и проверяет, имеет ли пользователь
+    """Получает комментарий по ID и проверяет, имеет ли пользователь
     право на его изменение (автор или админ).
     """
     comment = await comment_repo.get_by_id(comment_id)

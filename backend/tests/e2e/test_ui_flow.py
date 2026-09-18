@@ -5,9 +5,8 @@ from playwright.sync_api import Page, TimeoutError, expect
 
 
 @pytest.mark.e2e
-def test_news_crud_flow(page: Page):
-    """
-    E2E сценарий:
+def test_news_crud_flow(page: Page) -> None:
+    """E2E сценарий:
     1. Логин (Admin).
     2. Создание новости.
     3. Проверка появления новости в списке.
@@ -15,7 +14,6 @@ def test_news_crud_flow(page: Page):
     5. Редактирование новости.
     6. Удаление новости.
     """
-
     # --- НАСТРОЙКИ ---
     FRONTEND_URL = "http://localhost:5173"
     EMAIL = "admin@example.com"
@@ -38,7 +36,8 @@ def test_news_crud_flow(page: Page):
         error_locator = page.locator("div[class*='error']")
         if error_locator.is_visible(timeout=2000):
             error_text = error_locator.text_content()
-            raise AssertionError(f"Login failed on frontend with message: '{error_text}'")
+            msg = f"Login failed on frontend with message: '{error_text}'"
+            raise AssertionError(msg)
     except TimeoutError:
         # Если элемента ошибки нет - идем дальше
         pass

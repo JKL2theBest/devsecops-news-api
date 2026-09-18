@@ -18,9 +18,7 @@ class CommentRepository(SQLAlchemyRepository[Comment, CommentCreate, CommentUpda
     ]
 
     async def get_multi(self, skip: int = 0, limit: int = 100, news_id: uuid.UUID | None = None) -> list[Comment]:
-        """
-        Получает список комментариев с возможностью фильтрации по news_id.
-        """
+        """Получает список комментариев с возможностью фильтрации по news_id."""
         query = select(self.model)
 
         if news_id:

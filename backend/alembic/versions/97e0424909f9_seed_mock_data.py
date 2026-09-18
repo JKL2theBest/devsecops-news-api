@@ -1,4 +1,4 @@
-"""seed mock data
+"""seed mock data.
 
 Revision ID: 97e0424909f9
 Revises: 7c771bba3ad7
@@ -72,7 +72,7 @@ def upgrade() -> None:
                 "content": {"text": "Here is a detailed article about FastAPI."},
                 "author_id": verified_author_id,
                 "published_at": datetime.datetime.now(datetime.UTC),
-            }
+            },
         ],
     )
 

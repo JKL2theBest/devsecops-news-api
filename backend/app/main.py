@@ -1,6 +1,7 @@
 import os
 import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import structlog
 from fastapi import FastAPI, Request
@@ -26,17 +27,14 @@ async def lifespan(_app: FastAPI):
     global hawk_client
     # Действия при старте
     prometheus_dir = os.environ.get("PROMETHEUS_MULTIPROC_DIR")
-    if prometheus_dir and not os.path.exists(prometheus_dir):
-        os.makedirs(prometheus_dir, exist_ok=True)
+    if prometheus_dir and not Path(prometheus_dir).exists():
+        Path(prometheus_dir).mkdir(parents=True, exist_ok=True)
 
     # Инициализация Hawk
     if settings.HAWK_TOKEN and settings.HAWK_TOKEN != "your_hawk_token_here":
-        print("DEBUG: Initializing Hawk...")
         try:
             hawk_client = Hawk(settings.HAWK_TOKEN)
-            print("DEBUG: Hawk client initialized successfully!")
-        except Exception as hawk_e:  # noqa: BLE001
-            print(f"ERROR: Failed to initialize Hawk: {hawk_e}")
+        except Exception:  # noqa: BLE001
             hawk_client = None
 
     await init_redis_pool()
@@ -58,12 +56,10 @@ async def hawk_exception_middleware(request: Request, call_next):
         return await call_next(request)
     except Exception as e:
         if hawk_client:
-            print(f"DEBUG: Sending error to Hawk: {e}")
             try:
                 hawk_client.send(e)
-                print("DEBUG: Error sent to Hawk.")
-            except Exception as hawk_e:  # noqa: BLE001
-                print(f"ERROR: Failed to send to Hawk: {hawk_e}")
+            except Exception:  # noqa: BLE001
+                pass
         raise
 
 
@@ -137,7 +133,8 @@ def read_root():
     return {"message": "Welcome to the news API"}
 
 
-@app.get("/error_test")
-def trigger_error():
-    """Тестовая ручка для проверки Hawk"""
-    raise ValueError("This is a test error for Hawk!")
+@app.get("/error_test", response_model=None)
+def trigger_error() -> None:
+    """Тестовая ручка для проверки Hawk."""
+    msg = "This is a test error for Hawk!"
+    raise ValueError(msg)

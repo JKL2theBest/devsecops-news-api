@@ -1,16 +1,16 @@
 import logging
-import os
 import sys
+from pathlib import Path
 
 import structlog
 
 
-def configure_logger():
+def configure_logger() -> None:
     log_dir = "logs"
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
+    if not Path(log_dir).exists():
+        Path(log_dir).mkdir(parents=True, exist_ok=True)
 
-    file_handler = logging.FileHandler(os.path.join(log_dir, "app.json"))
+    file_handler = logging.FileHandler(Path(log_dir) / "app.json")
     file_handler.setFormatter(logging.Formatter("%(message)s"))
 
     stream_handler = logging.StreamHandler(sys.stdout)
@@ -33,7 +33,7 @@ def configure_logger():
                     structlog.processors.CallsiteParameter.FILENAME,
                     structlog.processors.CallsiteParameter.FUNC_NAME,
                     structlog.processors.CallsiteParameter.LINENO,
-                }
+                },
             ),
             structlog.processors.JSONRenderer(),
         ],

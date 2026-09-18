@@ -31,14 +31,14 @@ async def get_all_comments(
     _current_user: CurrentUserDep,
     skip: int = 0,
     limit: int = 100,
-    news_id: uuid.UUID | None = Query(default=None, description="Filter comments by news ID"),  # noqa: B008
+    news_id: Annotated[uuid.UUID | None, Query(description="Filter comments by news ID")] = None,
 ):
     """Получить список комментариев."""
     return await comment_repo.get_multi(skip=skip, limit=limit, news_id=news_id)
 
 
 @router.get("/{comment_id}", response_model=CommentResponse)
-async def get_comment(comment_id: uuid.UUID, service: CommentServiceDep, current_user: CurrentUserDep):
+async def get_comment(comment_id: uuid.UUID, service: CommentServiceDep, _current_user: CurrentUserDep):
     """Получить комментарий по ID."""
     return await service.get_by_id(comment_id)
 
@@ -57,6 +57,6 @@ async def update_comment_partial(
 async def delete_comment(
     service: CommentServiceDep,
     comment_to_delete: Annotated[Comment, Depends(get_comment_for_update)],
-):
+) -> None:
     """Удалить комментарий (автор или админ)."""
     await service.delete_comment(comment_to_delete)

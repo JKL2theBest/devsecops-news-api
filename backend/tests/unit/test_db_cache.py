@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import app.db.cache as cache_module
@@ -9,14 +10,13 @@ def run_async(coro):
     return asyncio.run(coro)
 
 
-def test_init_and_close_redis_pool():
-    """
-    Тест проверяет:
+def test_init_and_close_redis_pool() -> None:
+    """Тест проверяет:
     1. Инициализацию пула (init_redis_pool).
     2. Закрытие пула (close_redis_pool).
     """
 
-    async def _test():
+    async def _test() -> None:
         cache_module.redis_pool = None
 
         mock_pool = MagicMock()
@@ -44,12 +44,10 @@ def test_init_and_close_redis_pool():
     run_async(_test())
 
 
-def test_get_redis_client_flow():
-    """
-    Тест проверяет работу генератора get_redis_client.
-    """
+def test_get_redis_client_flow() -> None:
+    """Тест проверяет работу генератора get_redis_client."""
 
-    async def _test():
+    async def _test() -> None:
         cache_module.redis_pool = None
 
         mock_pool_instance = MagicMock()
@@ -77,10 +75,8 @@ def test_get_redis_client_flow():
             assert cache_module.redis_pool is not None
             assert client == mock_redis_instance
 
-            try:
+            with contextlib.suppress(StopAsyncIteration):
                 await gen.__anext__()
-            except StopAsyncIteration:
-                pass
 
             mock_context_manager.__aexit__.assert_awaited_once()
 
@@ -90,12 +86,10 @@ def test_get_redis_client_flow():
     run_async(_test())
 
 
-def test_get_redis_client_connection_error():
-    """
-    Тест проверяет выброс ConnectionError, если пул не создался.
-    """
+def test_get_redis_client_connection_error() -> None:
+    """Тест проверяет выброс ConnectionError, если пул не создался."""
 
-    async def _test():
+    async def _test() -> None:
         cache_module.redis_pool = None
 
         with patch("app.db.cache.init_redis_pool") as mock_init:

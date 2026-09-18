@@ -11,12 +11,10 @@ def run_async(coro):
     return asyncio.run(coro)
 
 
-def test_send_notification_success(mocker):
-    """
-    Тест: успешная отправка уведомления о новости.
-    """
+def test_send_notification_success(mocker) -> None:
+    """Тест: успешная отправка уведомления о новости."""
 
-    async def _test():
+    async def _test() -> None:
         redis = FakeRedis(decode_responses=True)
         news_id = str(uuid.uuid4())
 
@@ -55,12 +53,10 @@ def test_send_notification_success(mocker):
     run_async(_test())
 
 
-def test_send_notification_idempotency(mocker):
-    """
-    Тест: повторный запуск задачи не должен отправлять письма.
-    """
+def test_send_notification_idempotency(mocker) -> None:
+    """Тест: повторный запуск задачи не должен отправлять письма."""
 
-    async def _test():
+    async def _test() -> None:
         redis = FakeRedis(decode_responses=True)
         news_id = str(uuid.uuid4())
 
@@ -82,12 +78,10 @@ def test_send_notification_idempotency(mocker):
     run_async(_test())
 
 
-def test_send_notification_news_not_found(mocker):
-    """
-    Тест: обработка ситуации, когда новость не найдена в БД.
-    """
+def test_send_notification_news_not_found(mocker) -> None:
+    """Тест: обработка ситуации, когда новость не найдена в БД."""
 
-    async def _test():
+    async def _test() -> None:
         redis = FakeRedis(decode_responses=True)
         news_id = str(uuid.uuid4())
 
@@ -120,12 +114,10 @@ def test_send_notification_news_not_found(mocker):
     run_async(_test())
 
 
-def test_weekly_digest_success(mocker):
-    """
-    Тест: сборка еженедельного дайджеста.
-    """
+def test_weekly_digest_success(mocker) -> None:
+    """Тест: сборка еженедельного дайджеста."""
 
-    async def _test():
+    async def _test() -> None:
         redis = FakeRedis(decode_responses=True)
 
         mocker.patch("app.worker.tasks.aioredis.from_url", return_value=redis)
@@ -169,12 +161,10 @@ def test_weekly_digest_success(mocker):
     run_async(_test())
 
 
-def test_weekly_digest_idempotency(mocker):
-    """
-    Тест: дайджест не отправляется дважды.
-    """
+def test_weekly_digest_idempotency(mocker) -> None:
+    """Тест: дайджест не отправляется дважды."""
 
-    async def _test():
+    async def _test() -> None:
         redis = FakeRedis(decode_responses=True)
         today = datetime.datetime.now(datetime.UTC).date()
         start_of_week = today - datetime.timedelta(days=today.weekday())

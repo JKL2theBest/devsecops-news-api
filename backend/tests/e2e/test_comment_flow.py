@@ -5,9 +5,8 @@ from playwright.sync_api import Page, expect
 
 
 @pytest.mark.e2e
-def test_user_registration_and_comments_flow(page: Page):
-    """
-    E2E сценарий "Жизненный цикл комментария":
+def test_user_registration_and_comments_flow(page: Page) -> None:
+    """E2E сценарий "Жизненный цикл комментария":
     1. Админ заходит и создает новость.
     2. Админ выходит.
     3. Новый пользователь регистрируется.
@@ -16,7 +15,6 @@ def test_user_registration_and_comments_flow(page: Page):
     6. Редактирует его.
     7. Удаляет его.
     """
-
     # --- НАСТРОЙКИ ---
     FRONTEND_URL = "http://localhost:5173"
 

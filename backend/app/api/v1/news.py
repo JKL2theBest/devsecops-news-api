@@ -31,7 +31,7 @@ async def create_news(
 @router.get("/", response_model=list[NewsResponse])
 async def get_all_news(
     news_repo: NewsRepoDep,
-    current_user: CurrentUserDep,
+    _current_user: CurrentUserDep,
     skip: int = 0,
     limit: int = 100,
 ):
@@ -40,7 +40,7 @@ async def get_all_news(
 
 
 @router.get("/{news_id}", response_model=NewsResponse)
-async def get_news(news_id: uuid.UUID, service: NewsServiceDep, current_user: CurrentUserDep):
+async def get_news(news_id: uuid.UUID, service: NewsServiceDep, _current_user: CurrentUserDep):
     """Получить одну новость по ID."""
     news = await service.get_by_id(news_id)
     # Сервис уже сам выбрасывает 404, но проверка для надежности не помешает
@@ -63,6 +63,6 @@ async def update_news_partial(
 async def delete_news(
     service: NewsServiceDep,
     news_to_delete: Annotated[News, Depends(get_news_for_update)],
-):
+) -> None:
     """Удалить новость (автор или админ)."""
     await service.delete_news(news_to_delete)

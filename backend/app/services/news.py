@@ -18,7 +18,7 @@ logger = structlog.get_logger()
 class NewsService(BaseService):
     _cache_ttl = 300  # 5 минут
 
-    def __init__(self, news_repo: NewsRepository, redis_client: Redis):
+    def __init__(self, news_repo: NewsRepository, redis_client: Redis) -> None:
         super().__init__(news_repo, redis_client)
 
     async def get_by_id(self, news_id: uuid.UUID) -> NewsResponse:

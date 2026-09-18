@@ -17,7 +17,7 @@ logger = structlog.get_logger()
 class UserService(BaseService):
     _cache_ttl = 300  # 5 минут
 
-    def __init__(self, user_repo: UserRepository, redis_client: Redis):
+    def __init__(self, user_repo: UserRepository, redis_client: Redis) -> None:
         super().__init__(user_repo, redis_client)
         self.repository: UserRepository
 

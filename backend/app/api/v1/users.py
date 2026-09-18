@@ -26,7 +26,7 @@ async def create_user(user_data: UserCreate, service: UserServiceDep):
 @router.get("/", response_model=list[UserResponse])
 async def get_all_users(
     user_repo: UserRepoDep,
-    current_user: CurrentUserDep,
+    _current_user: CurrentUserDep,
     skip: int = 0,
     limit: int = 100,
 ):
@@ -35,7 +35,7 @@ async def get_all_users(
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-async def get_user(user_id: uuid.UUID, service: UserServiceDep, current_user: CurrentUserDep):
+async def get_user(user_id: uuid.UUID, service: UserServiceDep, _current_user: CurrentUserDep):
     """Получить одного пользователя по ID."""
     user = await service.get_by_id(user_id)
     if not user:
@@ -57,7 +57,7 @@ async def update_user_partial(
 async def delete_user(
     user_id: uuid.UUID,
     service: UserServiceDep,
-    admin_user: Annotated[User, Depends(require_role([UserRole.ADMIN]))],
-):
+    _admin_user: Annotated[User, Depends(require_role([UserRole.ADMIN]))],
+) -> None:
     """Удалить пользователя (только админ)."""
     await service.delete_user(user_id)
