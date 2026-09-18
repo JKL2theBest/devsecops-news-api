@@ -50,9 +50,7 @@ async def test_news_cache_invalidated_on_update(
     assert await test_redis.exists(cache_key)
 
     # Обновляем новость
-    await author_client.patch(
-        f"/api/v1/news/{news_id}", json={"title": "Updated Title"}
-    )
+    await author_client.patch(f"/api/v1/news/{news_id}", json={"title": "Updated Title"})
 
     # Кэш должен исчезнуть
     assert not await test_redis.exists(cache_key)

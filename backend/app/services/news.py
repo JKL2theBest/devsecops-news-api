@@ -39,9 +39,7 @@ class NewsService(BaseService):
             )
 
         news_to_cache = NewsResponse.model_validate(db_news)
-        await self.redis.set(
-            cache_key, news_to_cache.model_dump_json(), ex=self._cache_ttl
-        )
+        await self.redis.set(cache_key, news_to_cache.model_dump_json(), ex=self._cache_ttl)
         return db_news
 
     async def create_news(self, news_data: NewsCreateIn, author: User) -> News:
@@ -61,9 +59,7 @@ class NewsService(BaseService):
 
     async def update_news(self, news_to_update: News, news_data: NewsUpdate) -> News:
         """Обновление новости с инвалидацией кэша."""
-        updated_news = await self.repository.update(
-            db_obj=news_to_update, update_data=news_data
-        )
+        updated_news = await self.repository.update(db_obj=news_to_update, update_data=news_data)
         await self.redis.delete(f"news:{updated_news.id}")
         logger.info("Cache invalidated", news_id=str(updated_news.id))
         return updated_news

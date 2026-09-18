@@ -29,23 +29,15 @@ def upgrade() -> None:
     user_role_enum.create(op.get_bind())
 
     # 1. Добавление новых колонок
-    op.add_column(
-        "users", sa.Column("hashed_password", sa.String(length=255), nullable=True)
-    )
+    op.add_column("users", sa.Column("hashed_password", sa.String(length=255), nullable=True))
     op.add_column(
         "users",
         sa.Column("role", user_role_enum, nullable=False, server_default="USER"),
     )
 
     # Обновление существующих данных: is_verified_author -> role
-    op.execute(
-        "UPDATE users SET role = 'VERIFIED_AUTHOR' WHERE is_verified_author = TRUE"
-    )
-    op.execute(
-        "UPDATE users SET hashed_password = '{}'".format(
-            hash_password("dummy_password")
-        )
-    )
+    op.execute("UPDATE users SET role = 'VERIFIED_AUTHOR' WHERE is_verified_author = TRUE")
+    op.execute("UPDATE users SET hashed_password = '{}'".format(hash_password("dummy_password")))
 
     # 2. Удаление старой колонки
     op.drop_column("users", "is_verified_author")
@@ -124,7 +116,7 @@ def upgrade() -> None:
                 "email": "admin@example.com",
                 "hashed_password": hash_password("admin_password"),
                 "role": "ADMIN",
-                "registered_at": datetime.datetime.now(datetime.timezone.utc),
+                "registered_at": datetime.datetime.now(datetime.UTC),
             },
         ],
     )
@@ -136,14 +128,10 @@ def downgrade() -> None:
     op.execute("DELETE FROM users WHERE email = 'admin@example.com'")
 
     op.drop_constraint("comments_news_id_fkey", "comments", type_="foreignkey")
-    op.create_foreign_key(
-        "comments_news_id_fkey", "comments", "news", ["news_id"], ["id"]
-    )
+    op.create_foreign_key("comments_news_id_fkey", "comments", "news", ["news_id"], ["id"])
 
     op.drop_constraint("comments_author_id_fkey", "comments", type_="foreignkey")
-    op.create_foreign_key(
-        "comments_author_id_fkey", "comments", "users", ["author_id"], ["id"]
-    )
+    op.create_foreign_key("comments_author_id_fkey", "comments", "users", ["author_id"], ["id"])
 
     op.drop_constraint("news_author_id_fkey", "news", type_="foreignkey")
     op.create_foreign_key("news_author_id_fkey", "news", "users", ["author_id"], ["id"])
@@ -162,9 +150,7 @@ def downgrade() -> None:
         ),
     )
 
-    op.execute(
-        "UPDATE users SET is_verified_author = TRUE WHERE role = 'VERIFIED_AUTHOR'"
-    )
+    op.execute("UPDATE users SET is_verified_author = TRUE WHERE role = 'VERIFIED_AUTHOR'")
 
     op.drop_column("users", "role")
     op.drop_column("users", "hashed_password")

@@ -15,9 +15,7 @@ async def news_for_comments(author_client: AsyncClient) -> dict:
     return response.json()
 
 
-async def test_any_user_can_create_comment(
-    user_client: AsyncClient, news_for_comments: dict
-):
+async def test_any_user_can_create_comment(user_client: AsyncClient, news_for_comments: dict):
     """Тест: любой авторизованный пользователь может создать комментарий."""
     response = await user_client.post(
         "/api/v1/comments/",
@@ -52,14 +50,10 @@ async def created_comment(user_client: AsyncClient, news_for_comments: dict) -> 
     return response.json()
 
 
-async def test_user_can_update_own_comment(
-    user_client: AsyncClient, created_comment: dict
-):
+async def test_user_can_update_own_comment(user_client: AsyncClient, created_comment: dict):
     """Тест: пользователь может обновить свой комментарий."""
     comment_id = created_comment["id"]
-    response = await user_client.patch(
-        f"/api/v1/comments/{comment_id}", json={"text": "Updated by Owner"}
-    )
+    response = await user_client.patch(f"/api/v1/comments/{comment_id}", json={"text": "Updated by Owner"})
     assert response.status_code == 200
     assert response.json()["text"] == "Updated by Owner"
 
@@ -77,27 +71,19 @@ async def test_author_cannot_update_other_comment(
     comment_id = comment_response.json()["id"]
 
     # 2. author_client пытается его изменить
-    response = await author_client.patch(
-        f"/api/v1/comments/{comment_id}", json={"text": "Hacked Comment"}
-    )
+    response = await author_client.patch(f"/api/v1/comments/{comment_id}", json={"text": "Hacked Comment"})
     assert response.status_code == 403
 
 
-async def test_admin_can_update_other_comment(
-    admin_client: AsyncClient, created_comment: dict
-):
+async def test_admin_can_update_other_comment(admin_client: AsyncClient, created_comment: dict):
     """Тест: админ может обновить чужой комментарий."""
     comment_id = created_comment["id"]
-    response = await admin_client.patch(
-        f"/api/v1/comments/{comment_id}", json={"text": "Updated by Admin"}
-    )
+    response = await admin_client.patch(f"/api/v1/comments/{comment_id}", json={"text": "Updated by Admin"})
     assert response.status_code == 200
     assert response.json()["text"] == "Updated by Admin"
 
 
-async def test_user_can_delete_own_comment(
-    user_client: AsyncClient, news_for_comments: dict
-):
+async def test_user_can_delete_own_comment(user_client: AsyncClient, news_for_comments: dict):
     """Тест: пользователь может удалить свой комментарий."""
     response = await user_client.post(
         "/api/v1/comments/",
@@ -129,38 +115,26 @@ async def test_author_cannot_delete_other_comment(
     assert response.status_code == 403
 
 
-async def test_admin_can_delete_other_comment(
-    admin_client: AsyncClient, created_comment: dict
-):
+async def test_admin_can_delete_other_comment(admin_client: AsyncClient, created_comment: dict):
     """Тест: админ может удалить чужой комментарий."""
     comment_id = created_comment["id"]
     response = await admin_client.delete(f"/api/v1/comments/{comment_id}")
     assert response.status_code == 204
 
 
-async def test_get_comments_filtered_by_news_id(
-    user_client: AsyncClient, author_client: AsyncClient
-):
+async def test_get_comments_filtered_by_news_id(user_client: AsyncClient, author_client: AsyncClient):
     """
     Тест: фильтрация комментариев по ID новости.
     """
     # 1. Создаем две разные новости
-    news1_resp = await author_client.post(
-        "/api/v1/news/", json={"title": "News One", "content": {"body": "1"}}
-    )
-    news2_resp = await author_client.post(
-        "/api/v1/news/", json={"title": "News Two", "content": {"body": "2"}}
-    )
+    news1_resp = await author_client.post("/api/v1/news/", json={"title": "News One", "content": {"body": "1"}})
+    news2_resp = await author_client.post("/api/v1/news/", json={"title": "News Two", "content": {"body": "2"}})
     news1_id = news1_resp.json()["id"]
     news2_id = news2_resp.json()["id"]
 
     # 2. Создаем комментарии к каждой новости
-    await user_client.post(
-        "/api/v1/comments/", json={"text": "Comment for News 1", "news_id": news1_id}
-    )
-    await user_client.post(
-        "/api/v1/comments/", json={"text": "Comment for News 2", "news_id": news2_id}
-    )
+    await user_client.post("/api/v1/comments/", json={"text": "Comment for News 1", "news_id": news1_id})
+    await user_client.post("/api/v1/comments/", json={"text": "Comment for News 2", "news_id": news2_id})
 
     # 3. Запрашиваем комментарии ТОЛЬКО для первой новости
     response = await user_client.get(f"/api/v1/comments/?news_id={news1_id}")

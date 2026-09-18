@@ -1,6 +1,6 @@
 import uuid
 from collections.abc import Sequence
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -14,7 +14,7 @@ CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class SQLAlchemyRepository[ModelType: Base, CreateSchemaType: BaseModel, UpdateSchemaType: BaseModel]:
     model: type[ModelType] = None
     _load_options: Sequence[Query] = []  # Для "жадной" загрузки (Eager loading)
 
@@ -44,9 +44,7 @@ class SQLAlchemyRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType
         result = await self.session.execute(query)
         return result.scalars().all()
 
-    async def update(
-        self, db_obj: ModelType, update_data: UpdateSchemaType
-    ) -> ModelType:
+    async def update(self, db_obj: ModelType, update_data: UpdateSchemaType) -> ModelType:
         """Обновляет объект и возвращает его с жадно загруженными связями."""
         update_dict = update_data.model_dump(exclude_unset=True)
         for field, value in update_dict.items():

@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi import HTTPException, status
@@ -47,9 +47,7 @@ class AuthService:
 
         # Если токена нет, это значит, что он невалиден или истек.
         if not session_data_json:
-            raise HTTPException(
-                status_code=401, detail="Invalid or expired refresh token"
-            )
+            raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
 
         session_data = json.loads(session_data_json)
         user = await self.user_repo.get_by_id(session_data["user_id"])
@@ -62,9 +60,7 @@ class AuthService:
         user_sessions_key = f"user_sessions:{user.id}"
         await self.redis.srem(user_sessions_key, refresh_token)
 
-        return await self._create_tokens(
-            user=user, user_agent=session_data.get("user_agent")
-        )
+        return await self._create_tokens(user=user, user_agent=session_data.get("user_agent"))
 
     async def logout(self, refresh_token: str) -> None:
         """Выход из системы путем удаления refresh-токена из Redis."""
@@ -79,15 +75,11 @@ class AuthService:
                 user_sessions_key = f"user_sessions:{user_id}"
                 await self.redis.srem(user_sessions_key, refresh_token)
 
-    async def handle_sso_callback(
-        self, session: AsyncSession, user_info: OpenID, user_agent: str | None
-    ) -> dict:
+    async def handle_sso_callback(self, session: AsyncSession, user_info: OpenID, user_agent: str | None) -> dict:
         """Обработка коллбэка от SSO-провайдера (ex. GitHub)."""
         email = user_info.email
         if not email:
-            raise HTTPException(
-                status_code=400, detail="Email not provided by SSO provider"
-            )
+            raise HTTPException(status_code=400, detail="Email not provided by SSO provider")
 
         user = await self.user_repo.get_by_email(email)
 
@@ -131,7 +123,7 @@ class AuthService:
         session_data = {
             "user_id": str(user.id),
             "user_agent": user_agent,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
 
         # Сохраняем основную информацию о сессии, передавая `ex` для установки TTL

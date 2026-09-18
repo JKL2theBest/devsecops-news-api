@@ -12,9 +12,7 @@ class CommentService(BaseService):
     def __init__(self, comment_repo: CommentRepository):
         super().__init__(comment_repo)
 
-    async def create_comment(
-        self, comment_data: CommentCreateIn, author: User
-    ) -> Comment:
+    async def create_comment(self, comment_data: CommentCreateIn, author: User) -> Comment:
         internal_comment_dict = comment_data.model_dump()
         internal_comment_dict["author_id"] = author.id
 
@@ -36,12 +34,8 @@ class CommentService(BaseService):
                 detail=f"Database integrity error: {error_info}",
             )
 
-    async def update_comment(
-        self, comment_to_update: Comment, comment_data: CommentUpdate
-    ) -> Comment:
-        return await self.repository.update(
-            db_obj=comment_to_update, update_data=comment_data
-        )
+    async def update_comment(self, comment_to_update: Comment, comment_data: CommentUpdate) -> Comment:
+        return await self.repository.update(db_obj=comment_to_update, update_data=comment_data)
 
     async def delete_comment(self, comment_to_delete: Comment) -> None:
         await self.repository.delete(db_obj=comment_to_delete)

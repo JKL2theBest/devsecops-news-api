@@ -38,9 +38,7 @@ async def get_all_comments(
 
 
 @router.get("/{comment_id}", response_model=CommentResponse)
-async def get_comment(
-    comment_id: uuid.UUID, service: CommentServiceDep, current_user: CurrentUserDep
-):
+async def get_comment(comment_id: uuid.UUID, service: CommentServiceDep, current_user: CurrentUserDep):
     """Получить комментарий по ID."""
     return await service.get_by_id(comment_id)
 

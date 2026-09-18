@@ -22,9 +22,7 @@ router = APIRouter(prefix="/news", tags=["news"])
 async def create_news(
     news_data: NewsCreateIn,
     service: NewsServiceDep,
-    current_user: Annotated[
-        User, Depends(require_role([UserRole.ADMIN, UserRole.VERIFIED_AUTHOR]))
-    ],
+    current_user: Annotated[User, Depends(require_role([UserRole.ADMIN, UserRole.VERIFIED_AUTHOR]))],
 ):
     """Создать новость (только верифицированный автор или админ)."""
     return await service.create_news(news_data, current_user)
@@ -42,9 +40,7 @@ async def get_all_news(
 
 
 @router.get("/{news_id}", response_model=NewsResponse)
-async def get_news(
-    news_id: uuid.UUID, service: NewsServiceDep, current_user: CurrentUserDep
-):
+async def get_news(news_id: uuid.UUID, service: NewsServiceDep, current_user: CurrentUserDep):
     """Получить одну новость по ID."""
     news = await service.get_by_id(news_id)
     # Сервис уже сам выбрасывает 404, но проверка для надежности не помешает

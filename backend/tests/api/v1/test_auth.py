@@ -39,17 +39,13 @@ async def test_register_user(client: AsyncClient, name, email, password, status_
         ("user@test.com", "wrongpassword", 401, "Incorrect email or password"),
     ],
 )
-async def test_login_failures(
-    client: AsyncClient, email, password, status_code, detail
-):
+async def test_login_failures(client: AsyncClient, email, password, status_code, detail):
     """Тест неудачных попыток входа."""
     await client.post(
         "/api/v1/auth/register",
         json={"name": "Test User", "email": "user@test.com", "password": "password123"},
     )
-    response = await client.post(
-        "/api/v1/auth/login", data={"username": email, "password": password}
-    )
+    response = await client.post("/api/v1/auth/login", data={"username": email, "password": password})
     assert response.status_code == status_code
     assert detail in response.json()["detail"]
 
@@ -67,34 +63,24 @@ async def test_refresh_and_logout(user_client: AsyncClient):
     """Тест полного флоу refresh и logout."""
     refresh_token = user_client.refresh_token
 
-    refresh_response = await user_client.post(
-        "/api/v1/auth/refresh", json={"refresh_token": refresh_token}
-    )
+    refresh_response = await user_client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
     assert refresh_response.status_code == 200
     new_tokens = refresh_response.json()
     new_refresh_token = new_tokens["refresh_token"]
 
-    old_token_response = await user_client.post(
-        "/api/v1/auth/refresh", json={"refresh_token": refresh_token}
-    )
+    old_token_response = await user_client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
     assert old_token_response.status_code == 401
 
-    logout_response = await user_client.post(
-        "/api/v1/auth/logout", json={"refresh_token": new_refresh_token}
-    )
+    logout_response = await user_client.post("/api/v1/auth/logout", json={"refresh_token": new_refresh_token})
     assert logout_response.status_code == 204
 
-    final_refresh_response = await user_client.post(
-        "/api/v1/auth/refresh", json={"refresh_token": new_refresh_token}
-    )
+    final_refresh_response = await user_client.post("/api/v1/auth/refresh", json={"refresh_token": new_refresh_token})
     assert final_refresh_response.status_code == 401
 
 
 async def test_refresh_invalid_token(client: AsyncClient):
     """Тест: попытка рефреша с невалидным токеном."""
-    response = await client.post(
-        "/api/v1/auth/refresh", json={"refresh_token": "invalid_token"}
-    )
+    response = await client.post("/api/v1/auth/refresh", json={"refresh_token": "invalid_token"})
     assert response.status_code == 401
 
 
@@ -116,9 +102,7 @@ async def test_github_callback_new_user(client: AsyncClient, mocker):
         new_callable=AsyncMock,
         return_value=mock_openid,
     )
-    response = await client.get(
-        "/api/v1/auth/github/callback?code=fakecode&state=fakestate"
-    )
+    response = await client.get("/api/v1/auth/github/callback?code=fakecode&state=fakestate")
     assert response.status_code == 200
     tokens = response.json()
     assert "access_token" in tokens
@@ -135,17 +119,13 @@ async def test_github_callback_existing_user(client: AsyncClient, mocker):
             "password": "password123",
         },
     )
-    mock_openid = OpenID(
-        id="github_id_456", email=existing_email, display_name="Existing User"
-    )
+    mock_openid = OpenID(id="github_id_456", email=existing_email, display_name="Existing User")
     mocker.patch(
         "fastapi_sso.sso.github.GithubSSO.verify_and_process",
         new_callable=AsyncMock,
         return_value=mock_openid,
     )
-    response = await client.get(
-        "/api/v1/auth/github/callback?code=fakecode&state=fakestate"
-    )
+    response = await client.get("/api/v1/auth/github/callback?code=fakecode&state=fakestate")
     assert response.status_code == 200
     tokens = response.json()
     assert "access_token" in tokens
@@ -158,8 +138,6 @@ async def test_github_callback_process_error(client: AsyncClient, mocker):
         new_callable=AsyncMock,
         return_value=None,
     )
-    response = await client.get(
-        "/api/v1/auth/github/callback?code=fakecode&state=fakestate"
-    )
+    response = await client.get("/api/v1/auth/github/callback?code=fakecode&state=fakestate")
     assert response.status_code == 400
     assert "GitHub login failed" in response.json()["detail"]

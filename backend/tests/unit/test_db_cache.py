@@ -22,9 +22,7 @@ def test_init_and_close_redis_pool():
         mock_pool = MagicMock()
         mock_pool.disconnect = AsyncMock()
 
-        with patch(
-            "app.db.cache.aioredis.ConnectionPool.from_url", return_value=mock_pool
-        ) as mock_from_url:
+        with patch("app.db.cache.aioredis.ConnectionPool.from_url", return_value=mock_pool) as mock_from_url:
             # 1. Инициализация
             await cache_module.init_redis_pool()
 

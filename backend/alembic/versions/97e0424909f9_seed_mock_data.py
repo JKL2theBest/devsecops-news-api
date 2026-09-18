@@ -51,14 +51,14 @@ def upgrade() -> None:
                 "name": "Verified Author",
                 "email": "author@example.com",
                 "is_verified_author": True,
-                "registered_at": datetime.datetime.now(datetime.timezone.utc),
+                "registered_at": datetime.datetime.now(datetime.UTC),
             },
             {
                 "id": regular_user_id,
                 "name": "Regular User",
                 "email": "user@example.com",
                 "is_verified_author": False,
-                "registered_at": datetime.datetime.now(datetime.timezone.utc),
+                "registered_at": datetime.datetime.now(datetime.UTC),
             },
         ],
     )
@@ -71,7 +71,7 @@ def upgrade() -> None:
                 "title": "FastAPI is Awesome!",
                 "content": {"text": "Here is a detailed article about FastAPI."},
                 "author_id": verified_author_id,
-                "published_at": datetime.datetime.now(datetime.timezone.utc),
+                "published_at": datetime.datetime.now(datetime.UTC),
             }
         ],
     )

@@ -22,27 +22,19 @@ async def test_update_own_profile(user_client: AsyncClient):
     my_id = user_client.user_data["id"]
     new_name = "New Name For Me"
 
-    update_response = await user_client.patch(
-        f"/api/v1/users/{my_id}", json={"name": new_name}
-    )
+    update_response = await user_client.patch(f"/api/v1/users/{my_id}", json={"name": new_name})
     assert update_response.status_code == 200
     assert update_response.json()["name"] == new_name
 
 
-async def test_update_other_profile_forbidden(
-    user_client: AsyncClient, author_client: AsyncClient
-):
+async def test_update_other_profile_forbidden(user_client: AsyncClient, author_client: AsyncClient):
     """Тест: обычный пользователь не может обновить профиль другого пользователя."""
     author_id = author_client.user_data["id"]
-    response = await user_client.patch(
-        f"/api/v1/users/{author_id}", json={"name": "Hacked Name"}
-    )
+    response = await user_client.patch(f"/api/v1/users/{author_id}", json={"name": "Hacked Name"})
     assert response.status_code == 403
 
 
-async def test_admin_can_update_and_delete_user(
-    admin_client: AsyncClient, user_client: AsyncClient
-):
+async def test_admin_can_update_and_delete_user(admin_client: AsyncClient, user_client: AsyncClient):
     """Тест: админ может обновлять и удалять других пользователей."""
     user_id_to_modify = user_client.user_data["id"]
 

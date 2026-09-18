@@ -95,9 +95,7 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
-        )
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception
@@ -128,9 +126,7 @@ def require_role(required_roles: list[UserRole]):
 
 
 # --- РЕЗОЛВЕРЫ (ПРОВЕРКА ВЛАДЕНИЯ) ---
-async def get_news_for_update(
-    news_id: uuid.UUID, current_user: CurrentUserDep, news_repo: NewsRepoDep
-) -> News:
+async def get_news_for_update(news_id: uuid.UUID, current_user: CurrentUserDep, news_repo: NewsRepoDep) -> News:
     """
     Получает новость по ID и проверяет, имеет ли пользователь
     право на ее изменение (автор или админ).
@@ -167,9 +163,7 @@ async def get_comment_for_update(
     return comment
 
 
-async def get_user_for_update(
-    user_id: uuid.UUID, current_user: CurrentUserDep, user_repo: UserRepoDep
-) -> User:
+async def get_user_for_update(user_id: uuid.UUID, current_user: CurrentUserDep, user_repo: UserRepoDep) -> User:
     """Проверяет, имеет ли пользователь право на изменение профиля (своего или админ)."""
     user_to_update = await user_repo.get_by_id(user_id)
     if not user_to_update:

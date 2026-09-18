@@ -36,9 +36,7 @@ class UserService(BaseService):
             return None
 
         user_to_cache = UserResponse.model_validate(db_user)
-        await self.redis.set(
-            cache_key, user_to_cache.model_dump_json(), ex=self._cache_ttl
-        )
+        await self.redis.set(cache_key, user_to_cache.model_dump_json(), ex=self._cache_ttl)
         return db_user
 
     async def create_user(self, user_data: UserCreate) -> User:
@@ -62,9 +60,7 @@ class UserService(BaseService):
 
     async def update_user(self, user_to_update: User, user_data: UserUpdate) -> User:
         """Обновление пользователя с инвалидацией кэша."""
-        updated_user = await self.repository.update(
-            db_obj=user_to_update, update_data=user_data
-        )
+        updated_user = await self.repository.update(db_obj=user_to_update, update_data=user_data)
         await self.redis.delete(f"user:{updated_user.id}")
         logger.info("Cache invalidated", user_id=str(updated_user.id))
         return updated_user

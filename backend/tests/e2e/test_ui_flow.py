@@ -38,9 +38,7 @@ def test_news_crud_flow(page: Page):
         error_locator = page.locator("div[class*='error']")
         if error_locator.is_visible(timeout=2000):
             error_text = error_locator.text_content()
-            raise AssertionError(
-                f"Login failed on frontend with message: '{error_text}'"
-            )
+            raise AssertionError(f"Login failed on frontend with message: '{error_text}'")
     except AssertionError:
         raise
     except Exception:

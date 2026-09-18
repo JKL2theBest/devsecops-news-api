@@ -49,23 +49,17 @@ async def created_news(author_client: AsyncClient) -> dict:
     return response.json()
 
 
-async def test_author_can_update_own_news(
-    author_client: AsyncClient, created_news: dict
-):
+async def test_author_can_update_own_news(author_client: AsyncClient, created_news: dict):
     """Тест: автор может обновить свою новость."""
     news_id = created_news["id"]
-    response = await author_client.patch(
-        f"/api/v1/news/{news_id}", json={"title": "Updated by Author"}
-    )
+    response = await author_client.patch(f"/api/v1/news/{news_id}", json={"title": "Updated by Author"})
     assert response.status_code == 200
     assert response.json()["title"] == "Updated by Author"
 
 
 async def test_author_can_delete_own_news(author_client: AsyncClient):
     """Тест: автор может удалить свою новость."""
-    response = await author_client.post(
-        "/api/v1/news/", json={"title": "To Be Deleted", "content": {}}
-    )
+    response = await author_client.post("/api/v1/news/", json={"title": "To Be Deleted", "content": {}})
     news_id = response.json()["id"]
 
     delete_response = await author_client.delete(f"/api/v1/news/{news_id}")
@@ -80,21 +74,15 @@ async def test_permissions_on_other_news(
 ):
     """Тест: юзер не может менять чужие новости, а админ может."""
     # 1. Автор создает новость
-    response = await author_client.post(
-        "/api/v1/news/", json={"title": "Ownership Test", "content": {}}
-    )
+    response = await author_client.post("/api/v1/news/", json={"title": "Ownership Test", "content": {}})
     assert response.status_code == 201
     news_id = response.json()["id"]
 
     # 2. Обычный юзер пытается ее изменить (неуспешно)
-    patch_response_user = await user_client.patch(
-        f"/api/v1/news/{news_id}", json={"title": "Hacked Title"}
-    )
+    patch_response_user = await user_client.patch(f"/api/v1/news/{news_id}", json={"title": "Hacked Title"})
     assert patch_response_user.status_code == 403
 
     # 3. Админ пытается ее изменить (успешно)
-    admin_patch_response = await admin_client.patch(
-        f"/api/v1/news/{news_id}", json={"title": "Admin Updated"}
-    )
+    admin_patch_response = await admin_client.patch(f"/api/v1/news/{news_id}", json={"title": "Admin Updated"})
     assert admin_patch_response.status_code == 200
     assert admin_patch_response.json()["title"] == "Admin Updated"

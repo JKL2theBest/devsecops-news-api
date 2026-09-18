@@ -49,9 +49,7 @@ def event_loop():
 
 # --- Настройка БД ---
 engine_test = create_async_engine(settings.DATABASE_URL, poolclass=NullPool)
-async_session_maker = async_sessionmaker(
-    engine_test, class_=AsyncSession, expire_on_commit=False
-)
+async_session_maker = async_sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -67,9 +65,7 @@ def apply_migrations():
     sync_engine = create_sync_engine(settings.SYNC_DATABASE_URL)
     with sync_engine.connect() as conn:
         conn.execute(text("COMMIT"))
-        conn.execute(
-            text("TRUNCATE TABLE users, news, comments RESTART IDENTITY CASCADE;")
-        )
+        conn.execute(text("TRUNCATE TABLE users, news, comments RESTART IDENTITY CASCADE;"))
         conn.commit()
 
         # 3. Восстановление Админа
@@ -86,7 +82,7 @@ def apply_migrations():
                 "email": "admin@example.com",
                 "password": hash_password("admin_password"),
                 "role": "ADMIN",
-                "reg_at": datetime.datetime.now(datetime.timezone.utc),
+                "reg_at": datetime.datetime.now(datetime.UTC),
             },
         )
         conn.commit()
@@ -161,15 +157,11 @@ async def _setup_auth_client(app_instance: FastAPI, role: UserRole) -> AsyncClie
 
     if role != UserRole.USER:
         async with async_session_maker() as session:
-            result = await session.execute(
-                select(User).where(User.id == uuid.UUID(user_id))
-            )
+            result = await session.execute(select(User).where(User.id == uuid.UUID(user_id)))
             user_to_update = result.scalar_one()
             user_to_update.role = role
             await session.commit()
-            async for redis_client in app_instance.dependency_overrides[
-                get_redis_client
-            ]():
+            async for redis_client in app_instance.dependency_overrides[get_redis_client]():
                 await redis_client.delete(f"user:{user_id}")
 
     login_res = await client.post(

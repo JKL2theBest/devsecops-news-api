@@ -29,9 +29,7 @@ def test_send_notification_success(mocker):
 
         mock_session = AsyncMock()
         mock_session.__aenter__.return_value = mock_session
-        mocker.patch(
-            "app.worker.tasks.async_sessionmaker", return_value=lambda: mock_session
-        )
+        mocker.patch("app.worker.tasks.async_sessionmaker", return_value=lambda: mock_session)
 
         mock_news_result = MagicMock()
         mock_news = MagicMock()
@@ -51,9 +49,7 @@ def test_send_notification_success(mocker):
         # Проверки
         assert await redis.exists(f"news-notification-sent:{news_id}")
 
-        mock_logger.info.assert_any_call(
-            "SEND_EMAIL", recipient="test@example.com", subject="New Article!", body=ANY
-        )
+        mock_logger.info.assert_any_call("SEND_EMAIL", recipient="test@example.com", subject="New Article!", body=ANY)
         await redis.aclose()
 
     run_async(_test())
@@ -79,9 +75,7 @@ def test_send_notification_idempotency(mocker):
 
         await _send_notification_async(news_id)
 
-        mock_logger.warning.assert_called_with(
-            "Notification already sent. Skipping.", news_id=news_id
-        )
+        mock_logger.warning.assert_called_with("Notification already sent. Skipping.", news_id=news_id)
         mock_logger.info.assert_not_called()
         await redis.aclose()
 
@@ -106,9 +100,7 @@ def test_send_notification_news_not_found(mocker):
 
         mock_session = AsyncMock()
         mock_session.__aenter__.return_value = mock_session
-        mocker.patch(
-            "app.worker.tasks.async_sessionmaker", return_value=lambda: mock_session
-        )
+        mocker.patch("app.worker.tasks.async_sessionmaker", return_value=lambda: mock_session)
 
         # Результат - MagicMock (синхронный)
         mock_news_result = MagicMock()
@@ -145,9 +137,7 @@ def test_weekly_digest_success(mocker):
 
         mock_session = AsyncMock()
         mock_session.__aenter__.return_value = mock_session
-        mocker.patch(
-            "app.worker.tasks.async_sessionmaker", return_value=lambda: mock_session
-        )
+        mocker.patch("app.worker.tasks.async_sessionmaker", return_value=lambda: mock_session)
 
         # Новости - MagicMock
         mock_news_result = MagicMock()
@@ -201,9 +191,7 @@ def test_weekly_digest_idempotency(mocker):
 
         await _send_digest_async()
 
-        mock_logger.warning.assert_called_with(
-            "Weekly digest already sent. Skipping.", week=str(start_of_week)
-        )
+        mock_logger.warning.assert_called_with("Weekly digest already sent. Skipping.", week=str(start_of_week))
         await redis.aclose()
 
     run_async(_test())

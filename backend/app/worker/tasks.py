@@ -36,9 +36,7 @@ async def _send_notification_async(news_id: str):
     engine = create_async_engine(settings.DATABASE_URL, echo=False)
     local_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
-    redis = aioredis.from_url(
-        f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0", decode_responses=True
-    )
+    redis = aioredis.from_url(f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0", decode_responses=True)
 
     try:
         idempotency_key = f"news-notification-sent:{news_id}"
@@ -47,9 +45,7 @@ async def _send_notification_async(news_id: str):
             return
 
         async with local_session_maker() as session:
-            news_result = await session.execute(
-                select(News).filter_by(id=uuid.UUID(news_id))
-            )
+            news_result = await session.execute(select(News).filter_by(id=uuid.UUID(news_id)))
             news = news_result.scalar_one_or_none()
 
             users_result = await session.execute(select(User))
@@ -89,9 +85,7 @@ async def _send_digest_async():
     engine = create_async_engine(settings.DATABASE_URL, echo=False)
     local_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
-    redis = aioredis.from_url(
-        f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0", decode_responses=True
-    )
+    redis = aioredis.from_url(f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0", decode_responses=True)
 
     try:
         today = datetime.utcnow().date()
@@ -99,9 +93,7 @@ async def _send_digest_async():
         idempotency_key = f"weekly-digest-sent:{start_of_week.isoformat()}"
 
         if not await redis.set(idempotency_key, "1", ex=timedelta(days=8), nx=True):
-            logger.warning(
-                "Weekly digest already sent. Skipping.", week=str(start_of_week)
-            )
+            logger.warning("Weekly digest already sent. Skipping.", week=str(start_of_week))
             return
 
         async with local_session_maker() as session:
@@ -122,9 +114,7 @@ async def _send_digest_async():
                 logger.info("No new news this week. Skipping digest.")
                 return
 
-            "\n - ".join(
-                [f'"{news.title}" by {news.author.name}' for news in recent_news]
-            )
+            "\n - ".join([f'"{news.title}" by {news.author.name}' for news in recent_news])
 
             for user in users:
                 logger.info(

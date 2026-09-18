@@ -33,9 +33,7 @@ def get_github_sso() -> GithubSSO:
     )
 
 
-@router.post(
-    "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register_user(user_data: UserCreate, service: UserServiceDep):
     """Регистрация нового пользователя."""
     return await service.create_user(user_data)

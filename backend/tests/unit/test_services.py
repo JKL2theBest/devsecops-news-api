@@ -53,9 +53,7 @@ def test_create_user_duplicate_email():
         redis = FakeRedis(decode_responses=True)
 
         mock_repo = AsyncMock()
-        mock_repo.get_by_email.return_value = User(
-            id=uuid.uuid4(), email="exist@test.com"
-        )
+        mock_repo.get_by_email.return_value = User(id=uuid.uuid4(), email="exist@test.com")
 
         service = UserService(user_repo=mock_repo, redis_client=redis)
         user_in = UserCreate(name="Test", email="exist@test.com", password="pass")

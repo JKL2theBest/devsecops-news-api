@@ -35,9 +35,7 @@ async def get_all_users(
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-async def get_user(
-    user_id: uuid.UUID, service: UserServiceDep, current_user: CurrentUserDep
-):
+async def get_user(user_id: uuid.UUID, service: UserServiceDep, current_user: CurrentUserDep):
     """Получить одного пользователя по ID."""
     user = await service.get_by_id(user_id)
     if not user:
