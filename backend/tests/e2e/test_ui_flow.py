@@ -41,8 +41,8 @@ def test_news_crud_flow(page: Page):
             raise AssertionError(
                 f"Login failed on frontend with message: '{error_text}'"
             )
-    except AssertionError as e:
-        raise e
+    except AssertionError:
+        raise
     except Exception:
         # Если элемента ошибки нет - идем дальше
         pass

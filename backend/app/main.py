@@ -64,7 +64,7 @@ async def hawk_exception_middleware(request: Request, call_next):
                 print("DEBUG: Error sent to Hawk.")
             except Exception as hawk_e:
                 print(f"ERROR: Failed to send to Hawk: {hawk_e}")
-        raise e
+        raise
 
 
 # Middleware для Structlog
@@ -101,7 +101,7 @@ async def structlog_logging_middleware(request: Request, call_next):
     except Exception as e:
         # Эта ошибка уже будет поймана middleware для Hawk выше
         logger.exception("Request failed", error=str(e))
-        raise e
+        raise
 
 
 # Middleware для CORS
