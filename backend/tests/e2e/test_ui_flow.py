@@ -1,7 +1,7 @@
 import uuid
 
 import pytest
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page, TimeoutError, expect
 
 
 @pytest.mark.e2e
@@ -39,9 +39,7 @@ def test_news_crud_flow(page: Page):
         if error_locator.is_visible(timeout=2000):
             error_text = error_locator.text_content()
             raise AssertionError(f"Login failed on frontend with message: '{error_text}'")
-    except AssertionError:
-        raise
-    except Exception:
+    except TimeoutError:
         # Если элемента ошибки нет - идем дальше
         pass
 

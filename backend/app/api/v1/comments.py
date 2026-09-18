@@ -28,10 +28,10 @@ async def create_comment(
 @router.get("/", response_model=list[CommentResponse])
 async def get_all_comments(
     comment_repo: CommentRepoDep,
-    current_user: CurrentUserDep,
+    _current_user: CurrentUserDep,
     skip: int = 0,
     limit: int = 100,
-    news_id: uuid.UUID | None = Query(None, description="Filter comments by news ID"),
+    news_id: uuid.UUID | None = Query(default=None, description="Filter comments by news ID"),  # noqa: B008
 ):
     """Получить список комментариев."""
     return await comment_repo.get_multi(skip=skip, limit=limit, news_id=news_id)

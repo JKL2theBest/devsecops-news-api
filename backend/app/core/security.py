@@ -4,6 +4,7 @@ from typing import Any
 
 import jwt
 from argon2 import PasswordHasher
+from argon2.exceptions import VerificationError, VerifyMismatchError
 
 from app.core.config import settings
 
@@ -19,7 +20,7 @@ def verify_password(hashed_password: str, plain_password: str) -> bool:
     """Сравнение хеша."""
     try:
         return ph.verify(hashed_password, plain_password)
-    except Exception:
+    except (VerifyMismatchError, VerificationError):
         return False
 
 

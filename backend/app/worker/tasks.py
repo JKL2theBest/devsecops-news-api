@@ -1,6 +1,6 @@
 import asyncio
 import uuid
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import redis.asyncio as aioredis
 import structlog
@@ -88,7 +88,7 @@ async def _send_digest_async():
     redis = aioredis.from_url(f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0", decode_responses=True)
 
     try:
-        today = datetime.utcnow().date()
+        today = datetime.now(UTC).date()
         start_of_week = today - timedelta(days=today.weekday())
         idempotency_key = f"weekly-digest-sent:{start_of_week.isoformat()}"
 
@@ -97,7 +97,7 @@ async def _send_digest_async():
             return
 
         async with local_session_maker() as session:
-            one_week_ago = datetime.utcnow() - timedelta(days=7)
+            one_week_ago = datetime.now(UTC) - timedelta(days=7)
 
             news_result = await session.execute(
                 select(News)

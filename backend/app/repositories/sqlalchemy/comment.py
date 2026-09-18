@@ -1,7 +1,9 @@
 import uuid
+from typing import ClassVar
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+from sqlalchemy.sql.base import ExecutableOption
 
 from app.models.comment import Comment
 from app.repositories.sqlalchemy.base import SQLAlchemyRepository
@@ -10,7 +12,7 @@ from app.schemas.comment import CommentCreate, CommentUpdate
 
 class CommentRepository(SQLAlchemyRepository[Comment, CommentCreate, CommentUpdate]):
     model = Comment
-    _load_options = [
+    _load_options: ClassVar[list[ExecutableOption]] = [
         selectinload(model.author),
         selectinload(model.news),
     ]
@@ -30,4 +32,4 @@ class CommentRepository(SQLAlchemyRepository[Comment, CommentCreate, CommentUpda
             query = query.options(*self._load_options)
 
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())

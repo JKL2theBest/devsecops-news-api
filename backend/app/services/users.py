@@ -24,7 +24,7 @@ class UserService(BaseService):
     async def get_by_id(self, user_id: uuid.UUID) -> User | None:
         """Получение пользователя по ID с кэшированием."""
         cache_key = f"user:{user_id}"
-        if cached_user := await self.redis.get(cache_key):
+        if self.redis and (cached_user := await self.redis.get(cache_key)):
             logger.info("User found in cache", user_id=str(user_id))
             user_data = UserResponse.model_validate_json(cached_user)
             return User(**user_data.model_dump())
@@ -35,8 +35,9 @@ class UserService(BaseService):
         if not db_user:
             return None
 
-        user_to_cache = UserResponse.model_validate(db_user)
-        await self.redis.set(cache_key, user_to_cache.model_dump_json(), ex=self._cache_ttl)
+        if self.redis:
+            user_to_cache = UserResponse.model_validate(db_user)
+            await self.redis.set(cache_key, user_to_cache.model_dump_json(), ex=self._cache_ttl)
         return db_user
 
     async def create_user(self, user_data: UserCreate) -> User:
@@ -61,13 +62,16 @@ class UserService(BaseService):
     async def update_user(self, user_to_update: User, user_data: UserUpdate) -> User:
         """Обновление пользователя с инвалидацией кэша."""
         updated_user = await self.repository.update(db_obj=user_to_update, update_data=user_data)
-        await self.redis.delete(f"user:{updated_user.id}")
+        if self.redis:
+            await self.redis.delete(f"user:{updated_user.id}")
         logger.info("Cache invalidated", user_id=str(updated_user.id))
         return updated_user
 
     async def delete_user(self, user_id: uuid.UUID) -> None:
         """Удаление пользователя с инвалидацией кэша."""
-        user_to_delete = await self.get_by_id(user_id)  # проверить существование
-        await self.repository.delete(db_obj=user_to_delete)
-        await self.redis.delete(f"user:{user_id}")
+        user_to_delete = await self.get_by_id(user_id)
+        if user_to_delete:
+            await self.repository.delete(db_obj=user_to_delete)
+        if self.redis:
+            await self.redis.delete(f"user:{user_id}")
         logger.info("Cache invalidated", user_id=str(user_id))

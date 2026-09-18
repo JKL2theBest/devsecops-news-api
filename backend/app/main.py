@@ -35,8 +35,8 @@ async def lifespan(app: FastAPI):
         try:
             hawk_client = Hawk(settings.HAWK_TOKEN)
             print("DEBUG: Hawk client initialized successfully!")
-        except Exception as e:
-            print(f"ERROR: Failed to initialize Hawk: {e}")
+        except Exception as hawk_e:  # noqa: BLE001
+            print(f"ERROR: Failed to initialize Hawk: {hawk_e}")
             hawk_client = None
 
     await init_redis_pool()
@@ -62,7 +62,7 @@ async def hawk_exception_middleware(request: Request, call_next):
             try:
                 hawk_client.send(e)
                 print("DEBUG: Error sent to Hawk.")
-            except Exception as hawk_e:
+            except Exception as hawk_e:  # noqa: BLE001
                 print(f"ERROR: Failed to send to Hawk: {hawk_e}")
         raise
 

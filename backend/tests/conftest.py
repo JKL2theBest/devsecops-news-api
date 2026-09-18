@@ -5,6 +5,7 @@ import shutil
 import tempfile
 import uuid
 from collections.abc import AsyncGenerator
+from typing import Any, cast
 
 # Нужен для разрешения конфликтов вложенных циклов
 import nest_asyncio
@@ -120,7 +121,7 @@ async def test_app(test_redis: FakeRedis) -> AsyncGenerator[FastAPI, None]:
     app.dependency_overrides[get_db_session] = override_get_db_session
     app.dependency_overrides[get_redis_client] = override_get_redis_client
 
-    app.router.lifespan_context = None
+    app.router.lifespan_context = cast(Any, None)
     yield app
 
     app.dependency_overrides.clear()

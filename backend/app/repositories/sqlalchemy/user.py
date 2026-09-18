@@ -18,4 +18,4 @@ class UserRepository(SQLAlchemyRepository[User, UserCreate, UserUpdate]):
         if self._load_options:
             query = query.options(*self._load_options)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())

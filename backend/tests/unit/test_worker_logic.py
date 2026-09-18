@@ -176,7 +176,7 @@ def test_weekly_digest_idempotency(mocker):
 
     async def _test():
         redis = FakeRedis(decode_responses=True)
-        today = datetime.datetime.utcnow().date()
+        today = datetime.datetime.now(datetime.UTC).date()
         start_of_week = today - datetime.timedelta(days=today.weekday())
         key = f"weekly-digest-sent:{start_of_week.isoformat()}"
 
