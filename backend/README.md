@@ -110,7 +110,7 @@
     docker-compose down -v
 
     # Запуск
-
+    docker-compose up -d --build
     ```
 
     *Миграции будут применены автоматически при старте контейнера `app`.*
