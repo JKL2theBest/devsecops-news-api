@@ -22,7 +22,7 @@ hawk_client = None
 
 # --- LIFESPAN ДЛЯ STARTUP/SHUTDOWN ---
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     global hawk_client
     # Действия при старте
     prometheus_dir = os.environ.get("PROMETHEUS_MULTIPROC_DIR")
@@ -45,7 +45,7 @@ async def lifespan(app: FastAPI):
     await close_redis_pool()
 
 
-app = FastAPI(title="lab1_Suhangulyyev_M", lifespan=lifespan)
+app = FastAPI(title="news-api-backend", lifespan=lifespan)
 
 
 # --- MIDDLEWARES ---
