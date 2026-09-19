@@ -32,6 +32,10 @@ jobs:
         working-directory: backend
         run: poetry install --with dev
 
+      - name: Install pre-commit
+        working-directory: /
+        run: pipx install pre-commit
+
       - name: Run pre-commit
         run: pre-commit run --all-files
 
