@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry==2.4.3
+
+      - name: Configure Poetry
+        working-directory: backend
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        working-directory: backend
+        run: poetry install --with dev
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env
+        run: cp .env.example .env
+
+      - name: Start infrastructure
+        run: docker compose up -d --build
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry==2.4.3
+
+      - name: Configure Poetry
+        working-directory: backend
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        working-directory: backend
+        run: poetry install --with dev
+
+      - name: Run tests
+        working-directory: backend
+        run: poetry run pytest
+
+      - name: Show Docker logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop infrastructure
+        if: always()
+        run: docker compose down -v
