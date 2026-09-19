@@ -72,7 +72,11 @@ jobs:
 
       - name: Run tests
         working-directory: backend
-        run: poetry run pytest
+        run: |
+          set -a
+          source ../.env
+          set +a
+          poetry run pytest
 
       - name: Show Docker logs on failure
         if: failure()
