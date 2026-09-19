@@ -76,6 +76,15 @@ jobs:
           set -a
           source ../.env
           set +a
+
+          export DATABASE_URL="postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}"
+          export SYNC_DATABASE_URL="postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}"
+          export REDIS_HOST="localhost"
+          export REDIS_PORT="6379"
+          export CELERY_BROKER_URL=redis://localhost:6379/1
+          export CELERY_RESULT_BACKEND=redis://localhost:6379/2
+          export PROMETHEUS_MULTIPROC_DIR=/app/metrics
+
           poetry run pytest
 
       - name: Show Docker logs on failure
