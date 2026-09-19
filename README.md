@@ -42,7 +42,7 @@
     > **Важно:** При внесении правок в `backend/pyproject.toml` или `.pre-commit-config.yaml` обязательно запускайте `pre-commit clean`, чтобы обновить кэш инструментов анализа.
 4. Запуск проекта:
     ```bash
-    docker compose up -d --build
+    docker compose --profile monitoring up -d --build
     ```
 5. Перед запуском тестов убедиться, что установлен браузер `playwright` (из папки `backend` (`cd backend`)):
     ```bash

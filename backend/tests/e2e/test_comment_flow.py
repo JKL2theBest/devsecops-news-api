@@ -1,3 +1,4 @@
+import os
 import uuid
 
 import pytest
@@ -16,7 +17,10 @@ def test_user_registration_and_comments_flow(page: Page) -> None:
     7. Удаляет его.
     """
     # --- НАСТРОЙКИ ---
-    FRONTEND_URL = "http://localhost:5173"
+    FRONTEND_URL = os.getenv(
+        "FRONTEND_URL",
+        "http://localhost:5173",
+    )
 
     ADMIN_EMAIL = "admin@example.com"
     ADMIN_PASS = "admin_password"  # noqa: S105

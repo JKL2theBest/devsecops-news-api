@@ -1,3 +1,4 @@
+import os
 import uuid
 
 import pytest
@@ -16,7 +17,10 @@ def test_news_crud_flow(page: Page) -> None:
     6. Удаление новости.
     """
     # --- НАСТРОЙКИ ---
-    FRONTEND_URL = "http://localhost:5173"
+    FRONTEND_URL = os.getenv(
+        "FRONTEND_URL",
+        "http://localhost:5173",
+    )
     EMAIL = "admin@example.com"
     PASSWORD = "admin_password"  # noqa: S105
 
