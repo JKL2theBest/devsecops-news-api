@@ -15,40 +15,45 @@ from app.schemas.comment import CommentCreateIn, CommentResponse, CommentUpdate
 router = APIRouter(prefix="/comments", tags=["comments"])
 
 
-@router.post("/", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_comment(
     comment_data: CommentCreateIn,
     service: CommentServiceDep,
     current_user: CurrentUserDep,
-):
+) -> CommentResponse:
     """Создать новый комментарий (любой авторизованный пользователь)."""
     return await service.create_comment(comment_data, author=current_user)
 
 
-@router.get("/", response_model=list[CommentResponse])
+@router.get("/")
 async def get_all_comments(
     comment_repo: CommentRepoDep,
     _current_user: CurrentUserDep,
     skip: int = 0,
     limit: int = 100,
     news_id: Annotated[uuid.UUID | None, Query(description="Filter comments by news ID")] = None,
-):
+) -> list[CommentResponse]:
     """Получить список комментариев."""
-    return await comment_repo.get_multi(skip=skip, limit=limit, news_id=news_id)
+    comments = await comment_repo.get_multi(skip=skip, limit=limit, news_id=news_id)
+    return [CommentResponse.model_validate(comment) for comment in comments]
 
 
-@router.get("/{comment_id}", response_model=CommentResponse)
-async def get_comment(comment_id: uuid.UUID, service: CommentServiceDep, _current_user: CurrentUserDep):
+@router.get("/{comment_id}")
+async def get_comment(
+    comment_id: uuid.UUID,
+    service: CommentServiceDep,
+    _current_user: CurrentUserDep,
+) -> CommentResponse:
     """Получить комментарий по ID."""
     return await service.get_by_id(comment_id)
 
 
-@router.patch("/{comment_id}", response_model=CommentResponse)
+@router.patch("/{comment_id}")
 async def update_comment_partial(
     comment_data: CommentUpdate,
     service: CommentServiceDep,
     comment_to_update: Annotated[Comment, Depends(get_comment_for_update)],
-):
+) -> CommentResponse:
     """Частично обновить комментарий (автор или админ)."""
     return await service.update_comment(comment_to_update, comment_data)
 

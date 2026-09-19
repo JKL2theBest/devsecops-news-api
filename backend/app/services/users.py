@@ -14,12 +14,11 @@ from app.services.base import BaseService
 logger = structlog.get_logger()
 
 
-class UserService(BaseService):
+class UserService(BaseService[UserRepository]):
     _cache_ttl = 300  # 5 минут
 
     def __init__(self, user_repo: UserRepository, redis_client: Redis) -> None:
         super().__init__(user_repo, redis_client)
-        self.repository: UserRepository
 
     async def get_by_id(self, user_id: uuid.UUID) -> User | None:
         """Получение пользователя по ID с кэшированием."""

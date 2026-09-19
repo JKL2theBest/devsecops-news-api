@@ -37,7 +37,7 @@ def upgrade() -> None:
 
     # Обновление существующих данных: is_verified_author -> role
     op.execute("UPDATE users SET role = 'VERIFIED_AUTHOR' WHERE is_verified_author = TRUE")
-    op.execute("UPDATE users SET hashed_password = '{}'".format(hash_password("dummy_password")))
+    op.execute("UPDATE users SET hashed_password = '{}'".format(hash_password("dummy_password")))  # noqa: S608
 
     # 2. Удаление старой колонки
     op.drop_column("users", "is_verified_author")

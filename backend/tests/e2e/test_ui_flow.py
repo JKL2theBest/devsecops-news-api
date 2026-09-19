@@ -1,7 +1,8 @@
 import uuid
 
 import pytest
-from playwright.sync_api import Page, TimeoutError, expect
+from playwright.sync_api import Page, expect
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 
 @pytest.mark.e2e
@@ -17,7 +18,7 @@ def test_news_crud_flow(page: Page) -> None:
     # --- НАСТРОЙКИ ---
     FRONTEND_URL = "http://localhost:5173"
     EMAIL = "admin@example.com"
-    PASSWORD = "admin_password"
+    PASSWORD = "admin_password"  # noqa: S105
 
     unique_id = str(uuid.uuid4())[:8]
     NEWS_TITLE = f"E2E Test News {unique_id}"
@@ -38,7 +39,7 @@ def test_news_crud_flow(page: Page) -> None:
             error_text = error_locator.text_content()
             msg = f"Login failed on frontend with message: '{error_text}'"
             raise AssertionError(msg)
-    except TimeoutError:
+    except PlaywrightTimeoutError:
         # Если элемента ошибки нет - идем дальше
         pass
 

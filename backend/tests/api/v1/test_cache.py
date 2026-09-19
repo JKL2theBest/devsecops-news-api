@@ -1,7 +1,10 @@
+from http import HTTPStatus
+
 import pytest
 from app.repositories.sqlalchemy.news import NewsRepository
 from app.repositories.sqlalchemy.user import UserRepository
 from httpx import AsyncClient
+from pytest_mock import MockerFixture
 from redis.asyncio import Redis as AsyncRedis
 
 pytestmark = pytest.mark.asyncio
@@ -14,14 +17,14 @@ async def news_item_for_cache(author_client: AsyncClient) -> dict:
         "/api/v1/news/",
         json={"title": "Cache Test News", "content": {"body": "test"}},
     )
-    assert response.status_code == 201
+    assert response.status_code == HTTPStatus.CREATED
     return response.json()
 
 
 async def test_news_get_is_cached(
     user_client: AsyncClient,
     news_item_for_cache: dict,
-    mocker,
+    mocker: MockerFixture,
 ) -> None:
     """Тест: проверка кэширования новости."""
     news_id = news_item_for_cache["id"]
@@ -29,12 +32,12 @@ async def test_news_get_is_cached(
 
     # 1. Первый запрос (должен пойти в БД, spy зафиксирует вызов)
     response1 = await user_client.get(f"/api/v1/news/{news_id}")
-    assert response1.status_code == 200
+    assert response1.status_code == HTTPStatus.OK
     spy.assert_called_once()
 
     # 2. Второй запрос (должен быть взят из кэша, spy больше не вызывается)
     response2 = await user_client.get(f"/api/v1/news/{news_id}")
-    assert response2.status_code == 200
+    assert response2.status_code == HTTPStatus.OK
     spy.assert_called_once()
 
 
@@ -61,7 +64,7 @@ async def test_news_cache_invalidated_on_update(
 async def test_user_get_is_cached(
     admin_client: AsyncClient,
     user_client: AsyncClient,
-    mocker,
+    mocker: MockerFixture,
 ) -> None:
     """Тест: запрос к пользователю кэшируется."""
     target_user_id = user_client.user_data["id"]

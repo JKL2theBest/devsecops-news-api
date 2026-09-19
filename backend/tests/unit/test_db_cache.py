@@ -1,12 +1,16 @@
 import asyncio
 import contextlib
+from collections.abc import Coroutine
+from typing import TypeVar
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import app.db.cache as cache_module
 import pytest
 
+T = TypeVar("T")
 
-def run_async(coro):
+
+def run_async[T](coro: Coroutine[None, None, T]) -> T:
     return asyncio.run(coro)
 
 

@@ -1,7 +1,8 @@
 import os
 import time
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
-from pathlib import Path
+from http import HTTPStatus
 
 import structlog
 from fastapi import FastAPI, Request
@@ -9,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from hawk_python_sdk import Hawk
 from prometheus_client import CollectorRegistry, make_asgi_app, multiprocess
 from prometheus_fastapi_instrumentator import Instrumentator
+from starlette.responses import Response
 
 from app.api.v1 import auth, comments, news, users
 from app.core.config import settings
@@ -18,24 +20,24 @@ from app.db.cache import close_redis_pool, init_redis_pool
 # --- ОБЩАЯ НАСТРОЙКА ---
 configure_logger()
 logger = structlog.get_logger()
-hawk_client = None
 
 
 # --- LIFESPAN ДЛЯ STARTUP/SHUTDOWN ---
 @asynccontextmanager
-async def lifespan(_app: FastAPI):
-    global hawk_client
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     # Действия при старте
     prometheus_dir = os.environ.get("PROMETHEUS_MULTIPROC_DIR")
-    if prometheus_dir and not Path(prometheus_dir).exists():
-        Path(prometheus_dir).mkdir(parents=True, exist_ok=True)
+    if prometheus_dir:
+        os.makedirs(prometheus_dir, exist_ok=True)  # noqa: PTH103
 
     # Инициализация Hawk
-    if settings.HAWK_TOKEN and settings.HAWK_TOKEN != "your_hawk_token_here":
+    if settings.HAWK_TOKEN and settings.HAWK_TOKEN != "your_hawk_token_here":  # noqa: S105
         try:
-            hawk_client = Hawk(settings.HAWK_TOKEN)
+            _app.state.hawk_client = Hawk(settings.HAWK_TOKEN)
         except Exception:  # noqa: BLE001
-            hawk_client = None
+            _app.state.hawk_client = None
+    else:
+        _app.state.hawk_client = None
 
     await init_redis_pool()
     yield
@@ -44,6 +46,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="news-api-backend", lifespan=lifespan)
+app.state.hawk_client = None
 
 
 # --- MIDDLEWARES ---
@@ -51,21 +54,30 @@ app = FastAPI(title="news-api-backend", lifespan=lifespan)
 
 # Middleware для Hawk
 @app.middleware("http")
-async def hawk_exception_middleware(request: Request, call_next):
+async def hawk_exception_middleware(
+    request: Request,
+    call_next: Callable[[Request], Awaitable[Response]],
+) -> Response:
     try:
         return await call_next(request)
     except Exception as e:
+        hawk_client = request.app.state.hawk_client
+
         if hawk_client:
             try:
                 hawk_client.send(e)
-            except Exception:  # noqa: BLE001
-                pass
+            except Exception as hawk_e:
+                logger.exception("Failed to send error to Hawk", error=str(hawk_e))
+
         raise
 
 
 # Middleware для Structlog
 @app.middleware("http")
-async def structlog_logging_middleware(request: Request, call_next):
+async def structlog_logging_middleware(
+    request: Request,
+    call_next: Callable[[Request], Awaitable[Response]],
+) -> Response:
     request_id = request.headers.get("X-Request-ID", "unknown")
     structlog.contextvars.clear_contextvars()
     structlog.contextvars.bind_contextvars(
@@ -79,6 +91,10 @@ async def structlog_logging_middleware(request: Request, call_next):
 
     try:
         response = await call_next(request)
+    except Exception as e:
+        logger.exception("Request failed", error=str(e))
+        raise
+    else:
         process_time = time.perf_counter_ns() - start_time
 
         structlog.contextvars.bind_contextvars(
@@ -86,18 +102,14 @@ async def structlog_logging_middleware(request: Request, call_next):
             process_time=process_time / 10**6,  # ms
         )
 
-        if 400 <= response.status_code < 500:
+        if HTTPStatus.BAD_REQUEST <= response.status_code < HTTPStatus.INTERNAL_SERVER_ERROR:
             logger.warning("Client error")
-        elif response.status_code >= 500:
+        elif response.status_code >= HTTPStatus.INTERNAL_SERVER_ERROR:
             logger.error("Server error")
         else:
             logger.info("Request processed")
 
         return response
-    except Exception as e:
-        # Эта ошибка уже будет поймана middleware для Hawk выше
-        logger.exception("Request failed", error=str(e))
-        raise
 
 
 # Middleware для CORS
@@ -128,7 +140,7 @@ app.include_router(comments.router, prefix="/api/v1")
 
 # --- ТЕСТОВЫЕ РУЧКИ ---
 @app.get("/")
-def read_root():
+def read_root() -> dict[str, str]:
     logger.info("Root endpoint called")
     return {"message": "Welcome to the news API"}
 

@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import pytest
 from httpx import AsyncClient
 
@@ -11,7 +13,7 @@ async def news_for_comments(author_client: AsyncClient) -> dict:
         "/api/v1/news/",
         json={"title": "News for commenting", "content": {}},
     )
-    assert response.status_code == 201
+    assert response.status_code == HTTPStatus.CREATED
     return response.json()
 
 
@@ -24,7 +26,7 @@ async def test_any_user_can_create_comment(user_client: AsyncClient, news_for_co
             "news_id": news_for_comments["id"],
         },
     )
-    assert response.status_code == 201
+    assert response.status_code == HTTPStatus.CREATED
     data = response.json()
     assert data["text"] == "A comment from a simple user"
     assert data["author"]["id"] == user_client.user_data["id"]
@@ -33,7 +35,7 @@ async def test_any_user_can_create_comment(user_client: AsyncClient, news_for_co
 async def test_get_comments_unauthorized(client: AsyncClient) -> None:
     """Тест: неавторизованный пользователь не может получить комментарии."""
     response = await client.get("/api/v1/comments/")
-    assert response.status_code == 401
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
 
 
 @pytest.fixture
@@ -46,7 +48,7 @@ async def created_comment(user_client: AsyncClient, news_for_comments: dict) -> 
             "news_id": news_for_comments["id"],
         },
     )
-    assert response.status_code == 201
+    assert response.status_code == HTTPStatus.CREATED
     return response.json()
 
 
@@ -54,7 +56,7 @@ async def test_user_can_update_own_comment(user_client: AsyncClient, created_com
     """Тест: пользователь может обновить свой комментарий."""
     comment_id = created_comment["id"]
     response = await user_client.patch(f"/api/v1/comments/{comment_id}", json={"text": "Updated by Owner"})
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert response.json()["text"] == "Updated by Owner"
 
 
@@ -69,19 +71,19 @@ async def test_author_cannot_update_other_comment(
         "/api/v1/comments/",
         json={"text": "A user's comment", "news_id": news_for_comments["id"]},
     )
-    assert comment_response.status_code == 201
+    assert comment_response.status_code == HTTPStatus.CREATED
     comment_id = comment_response.json()["id"]
 
     # 2. author_client пытается его изменить
     response = await author_client.patch(f"/api/v1/comments/{comment_id}", json={"text": "Hacked Comment"})
-    assert response.status_code == 403
+    assert response.status_code == HTTPStatus.FORBIDDEN
 
 
 async def test_admin_can_update_other_comment(admin_client: AsyncClient, created_comment: dict) -> None:
     """Тест: админ может обновить чужой комментарий."""
     comment_id = created_comment["id"]
     response = await admin_client.patch(f"/api/v1/comments/{comment_id}", json={"text": "Updated by Admin"})
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert response.json()["text"] == "Updated by Admin"
 
 
@@ -94,10 +96,10 @@ async def test_user_can_delete_own_comment(user_client: AsyncClient, news_for_co
     comment_id = response.json()["id"]
 
     delete_response = await user_client.delete(f"/api/v1/comments/{comment_id}")
-    assert delete_response.status_code == 204
+    assert delete_response.status_code == HTTPStatus.NO_CONTENT
 
     get_response = await user_client.get(f"/api/v1/comments/{comment_id}")
-    assert get_response.status_code == 404
+    assert get_response.status_code == HTTPStatus.NOT_FOUND
 
 
 async def test_author_cannot_delete_other_comment(
@@ -111,19 +113,19 @@ async def test_author_cannot_delete_other_comment(
         "/api/v1/comments/",
         json={"text": "Another user's comment", "news_id": news_for_comments["id"]},
     )
-    assert comment_response.status_code == 201
+    assert comment_response.status_code == HTTPStatus.CREATED
     comment_id = comment_response.json()["id"]
 
     # 2. author_client пытается его удалить
     response = await author_client.delete(f"/api/v1/comments/{comment_id}")
-    assert response.status_code == 403
+    assert response.status_code == HTTPStatus.FORBIDDEN
 
 
 async def test_admin_can_delete_other_comment(admin_client: AsyncClient, created_comment: dict) -> None:
     """Тест: админ может удалить чужой комментарий."""
     comment_id = created_comment["id"]
     response = await admin_client.delete(f"/api/v1/comments/{comment_id}")
-    assert response.status_code == 204
+    assert response.status_code == HTTPStatus.NO_CONTENT
 
 
 async def test_get_comments_filtered_by_news_id(user_client: AsyncClient, author_client: AsyncClient) -> None:
@@ -141,7 +143,7 @@ async def test_get_comments_filtered_by_news_id(user_client: AsyncClient, author
     # 3. Запрашиваем комментарии ТОЛЬКО для первой новости
     response = await user_client.get(f"/api/v1/comments/?news_id={news1_id}")
 
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     data = response.json()
 
     # 4. Проверка

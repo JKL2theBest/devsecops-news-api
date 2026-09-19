@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from celery import Celery
 from celery.schedules import crontab
@@ -12,11 +13,11 @@ configure_logger()
 
 
 @worker_process_init.connect
-def worker_init(**_) -> None:
+def worker_init(**_: object) -> None:
     """Готовит директорию для метрик для каждого дочернего процесса Celery."""
     prometheus_dir = os.environ.get("PROMETHEUS_MULTIPROC_DIR")
-    if prometheus_dir and not os.path.exists(prometheus_dir):
-        os.makedirs(prometheus_dir, exist_ok=True)
+    if prometheus_dir:
+        Path(prometheus_dir).mkdir(parents=True, exist_ok=True)
     multiprocess.mark_process_dead(os.getpid())
 
 

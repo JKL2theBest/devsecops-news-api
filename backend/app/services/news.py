@@ -15,7 +15,7 @@ from app.worker.tasks import send_new_news_notification
 logger = structlog.get_logger()
 
 
-class NewsService(BaseService):
+class NewsService(BaseService[NewsRepository]):
     _cache_ttl = 300  # 5 минут
 
     def __init__(self, news_repo: NewsRepository, redis_client: Redis) -> None:

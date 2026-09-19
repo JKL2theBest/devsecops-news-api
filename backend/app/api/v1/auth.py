@@ -21,7 +21,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
-    token_type: str = "bearer"
+    token_type: str = "bearer"  # noqa: S105
 
 
 def get_github_sso() -> GithubSSO:
@@ -33,18 +33,21 @@ def get_github_sso() -> GithubSSO:
     )
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register_user(user_data: UserCreate, service: UserServiceDep):
+@router.post("/register", status_code=status.HTTP_201_CREATED)
+async def register_user(
+    user_data: UserCreate,
+    service: UserServiceDep,
+) -> UserResponse:
     """Регистрация нового пользователя."""
     return await service.create_user(user_data)
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login")
 async def login_for_access_token(
     request: Request,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     service: AuthServiceDep,
-):
+) -> TokenResponse:
     """Получение access и refresh токенов по email и паролю."""
     token_data = await service.login(
         form_data=form_data,
@@ -56,19 +59,19 @@ async def login_for_access_token(
 @router.get("/github/login")
 async def github_login(
     github_sso: Annotated[GithubSSO, Depends(get_github_sso)],
-):
+) -> TokenResponse:
     """Генерирует URL для редиректа на GitHub для аутентификации."""
     async with github_sso as sso:
         return await sso.get_login_redirect()
 
 
-@router.get("/github/callback", response_model=TokenResponse)
+@router.get("/github/callback")
 async def github_callback(
     request: Request,
     session: DBSession,
     service: AuthServiceDep,
     github_sso: Annotated[GithubSSO, Depends(get_github_sso)],
-):
+) -> TokenResponse:
     """Обрабатывает коллбэк от GitHub после аутентификации."""
     async with github_sso as sso:
         user_info = await sso.verify_and_process(request)
@@ -84,11 +87,11 @@ async def github_callback(
     return TokenResponse(**token_data)
 
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post("/refresh")
 async def refresh_access_token(
     request_body: RefreshTokenRequest,
     service: AuthServiceDep,
-):
+) -> TokenResponse:
     """Обновление access-токена с помощью refresh-токена."""
     token_data = await service.refresh_token(refresh_token=request_body.refresh_token)
     return TokenResponse(**token_data)
@@ -103,10 +106,11 @@ async def logout(
     await service.logout(refresh_token=request_body.refresh_token)
 
 
-@router.get("/sessions/me", response_model=list[RefreshTokenResponseFromCache])
+@router.get("/sessions/me")
 async def get_my_sessions(
     current_user: CurrentUserDep,
     service: AuthServiceDep,
-):
+) -> list[RefreshTokenResponseFromCache]:
     """Получение списка активных сессий текущего пользователя из Redis."""
-    return await service.get_user_sessions(user_id=str(current_user.id))
+    sessions = await service.get_user_sessions(user_id=str(current_user.id))
+    return [RefreshTokenResponseFromCache.model_validate(session) for session in sessions]

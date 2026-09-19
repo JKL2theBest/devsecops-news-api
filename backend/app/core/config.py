@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str = "redis://localhost:6379/1"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
 
-    HAWK_TOKEN: str = "your_hawk_token_here"
+    HAWK_TOKEN: str = "your_hawk_token_here"  # noqa: S105
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

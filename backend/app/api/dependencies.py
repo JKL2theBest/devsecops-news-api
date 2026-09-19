@@ -1,4 +1,5 @@
 import uuid
+from collections.abc import Callable
 from typing import Annotated
 
 import jwt
@@ -100,7 +101,7 @@ async def get_current_user(
         if user_id is None:
             raise credentials_exception
     except (PyJWTError, ValidationError):
-        raise credentials_exception
+        raise credentials_exception from None
 
     user = await user_service.get_by_id(uuid.UUID(user_id))
     if user is None:
@@ -111,7 +112,7 @@ async def get_current_user(
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
 
 
-def require_role(required_roles: list[UserRole]):
+def require_role(required_roles: list[UserRole]) -> Callable[[CurrentUserDep], User]:
     """Фабрика зависимостей для проверки ролей."""
 
     def role_checker(current_user: CurrentUserDep) -> User:

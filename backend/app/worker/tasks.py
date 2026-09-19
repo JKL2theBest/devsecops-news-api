@@ -17,12 +17,11 @@ logger = structlog.get_logger()
 
 
 @celery_app.task(
-    bind=True,
     autoretry_for=(ConnectionError,),
     retry_backoff=True,
     retry_kwargs={"max_retries": 5},
 )
-def send_new_news_notification(self, news_id: str) -> None:
+def send_new_news_notification(news_id: str) -> None:
     """Синхронная задача-обертка, которая запускает асинхронную логику."""
     asyncio.run(_send_notification_async(news_id))
 
@@ -66,12 +65,10 @@ async def _send_notification_async(news_id: str) -> None:
 
 
 @celery_app.task(
-    bind=True,
-    autoretry_for=(ConnectionError,),
-    retry_backoff=True,
+    autoretry_for=(Exception,),
     retry_kwargs={"max_retries": 3},
 )
-def send_weekly_digest(self) -> None:
+def send_weekly_digest() -> None:
     """Синхронная задача-обертка для еженедельного дайджеста."""
     asyncio.run(_send_digest_async())
 

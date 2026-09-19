@@ -64,14 +64,16 @@ line-length = 120
 target-version = "py312"
 
 [tool.ruff.lint]
-#select = ["ALL"]
+select = ["ALL"]
 ignore = [
     "D100",
     "D101",
     "D103",
     "D104",
+    "D102",
     "D203",
     "D205",
+    "D107",
     "D213",
     "CPY001",
     "F403",
@@ -79,6 +81,6 @@ ignore = [
     "RUF002",
     "RUF003",
     "INP001",
-
-    "S110",
+    "S101",
+    "N806",
 ]

@@ -1,17 +1,22 @@
 import asyncio
 import datetime
 import uuid
+from collections.abc import Coroutine
+from typing import TypeVar
 from unittest.mock import ANY, AsyncMock, MagicMock
 
 from app.worker.tasks import _send_digest_async, _send_notification_async
 from fakeredis.aioredis import FakeRedis
+from pytest_mock import MockerFixture
+
+T = TypeVar("T")
 
 
-def run_async(coro):
+def run_async[T](coro: Coroutine[None, None, T]) -> T:
     return asyncio.run(coro)
 
 
-def test_send_notification_success(mocker) -> None:
+def test_send_notification_success(mocker: MockerFixture) -> None:
     """Тест: успешная отправка уведомления о новости."""
 
     async def _test() -> None:
@@ -53,7 +58,7 @@ def test_send_notification_success(mocker) -> None:
     run_async(_test())
 
 
-def test_send_notification_idempotency(mocker) -> None:
+def test_send_notification_idempotency(mocker: MockerFixture) -> None:
     """Тест: повторный запуск задачи не должен отправлять письма."""
 
     async def _test() -> None:
@@ -78,7 +83,7 @@ def test_send_notification_idempotency(mocker) -> None:
     run_async(_test())
 
 
-def test_send_notification_news_not_found(mocker) -> None:
+def test_send_notification_news_not_found(mocker: MockerFixture) -> None:
     """Тест: обработка ситуации, когда новость не найдена в БД."""
 
     async def _test() -> None:
@@ -114,7 +119,7 @@ def test_send_notification_news_not_found(mocker) -> None:
     run_async(_test())
 
 
-def test_weekly_digest_success(mocker) -> None:
+def test_weekly_digest_success(mocker: MockerFixture) -> None:
     """Тест: сборка еженедельного дайджеста."""
 
     async def _test() -> None:
@@ -161,7 +166,7 @@ def test_weekly_digest_success(mocker) -> None:
     run_async(_test())
 
 
-def test_weekly_digest_idempotency(mocker) -> None:
+def test_weekly_digest_idempotency(mocker: MockerFixture) -> None:
     """Тест: дайджест не отправляется дважды."""
 
     async def _test() -> None:

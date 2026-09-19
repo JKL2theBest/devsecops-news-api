@@ -18,29 +18,34 @@ from app.schemas.role import UserRole
 router = APIRouter(prefix="/news", tags=["news"])
 
 
-@router.post("/", response_model=NewsResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_news(
     news_data: NewsCreateIn,
     service: NewsServiceDep,
     current_user: Annotated[User, Depends(require_role([UserRole.ADMIN, UserRole.VERIFIED_AUTHOR]))],
-):
+) -> NewsResponse:
     """Создать новость (только верифицированный автор или админ)."""
     return await service.create_news(news_data, current_user)
 
 
-@router.get("/", response_model=list[NewsResponse])
+@router.get("/")
 async def get_all_news(
     news_repo: NewsRepoDep,
     _current_user: CurrentUserDep,
     skip: int = 0,
     limit: int = 100,
-):
+) -> list[NewsResponse]:
     """Получить список всех новостей."""
-    return await news_repo.get_multi(skip=skip, limit=limit)
+    news_list = await news_repo.get_multi(skip=skip, limit=limit)
+    return [NewsResponse.model_validate(news) for news in news_list]
 
 
-@router.get("/{news_id}", response_model=NewsResponse)
-async def get_news(news_id: uuid.UUID, service: NewsServiceDep, _current_user: CurrentUserDep):
+@router.get("/{news_id}")
+async def get_news(
+    news_id: uuid.UUID,
+    service: NewsServiceDep,
+    _current_user: CurrentUserDep,
+) -> NewsResponse:
     """Получить одну новость по ID."""
     news = await service.get_by_id(news_id)
     # Сервис уже сам выбрасывает 404, но проверка для надежности не помешает
@@ -49,12 +54,12 @@ async def get_news(news_id: uuid.UUID, service: NewsServiceDep, _current_user: C
     return news
 
 
-@router.patch("/{news_id}", response_model=NewsResponse)
+@router.patch("/{news_id}")
 async def update_news_partial(
     news_update_data: NewsUpdate,
     service: NewsServiceDep,
     news_to_update: Annotated[News, Depends(get_news_for_update)],
-):
+) -> NewsResponse:
     """Частично обновить новость (автор или админ)."""
     return await service.update_news(news_to_update, news_update_data)
 

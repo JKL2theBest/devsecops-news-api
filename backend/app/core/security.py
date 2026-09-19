@@ -1,6 +1,5 @@
 import secrets
 from datetime import UTC, datetime, timedelta
-from typing import Any
 
 import jwt
 from argon2 import PasswordHasher
@@ -24,13 +23,16 @@ def verify_password(hashed_password: str, plain_password: str) -> bool:
         return False
 
 
-def create_access_token(subject: Any, expires_delta: timedelta | None = None) -> str:
+def create_access_token(
+    subject: str,
+    expires_delta: timedelta | None = None,
+) -> str:
     """JWT access token."""
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
         expire = datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode = {"exp": expire, "sub": str(subject)}
+    to_encode = {"exp": expire, "sub": subject}
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 

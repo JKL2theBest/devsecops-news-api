@@ -1,10 +1,14 @@
+# ruff: noqa: E402
 import asyncio
 import datetime
 import os
 import shutil
 import tempfile
 import uuid
-from collections.abc import AsyncGenerator
+from asyncio import AbstractEventLoop
+from collections.abc import AsyncGenerator, Generator
+from http import HTTPStatus
+from pathlib import Path
 from typing import Any, cast
 
 # Нужен для разрешения конфликтов вложенных циклов
@@ -38,7 +42,7 @@ from sqlalchemy.pool import NullPool
 
 # --- Явное определение Event Loop ---
 @pytest.fixture
-def event_loop():
+def event_loop() -> Generator[AbstractEventLoop, None, None]:
     """Создает fresh event loop для каждого теста."""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -52,7 +56,7 @@ async_session_maker = async_sessionmaker(engine_test, class_=AsyncSession, expir
 
 
 @pytest.fixture(scope="session", autouse=True)
-def apply_migrations():
+def apply_migrations() -> Generator[None, None, None]:
     """Применяет миграции и чистит данные."""
     # 1. Миграции
     config = Config("alembic.ini")
@@ -87,7 +91,7 @@ def apply_migrations():
     yield
 
     sync_engine.dispose()
-    if os.path.exists(TEST_METRICS_DIR):
+    if Path(TEST_METRICS_DIR).exists():
         shutil.rmtree(TEST_METRICS_DIR, ignore_errors=True)
 
 
@@ -107,11 +111,11 @@ async def test_redis() -> AsyncGenerator[FakeRedis, None]:
 async def test_app(test_redis: FakeRedis) -> AsyncGenerator[FastAPI, None]:
     """Фикстура для создания экземпляра тестового приложения с переопределенными зависимостями."""
 
-    async def override_get_db_session():
+    async def override_get_db_session() -> AsyncGenerator[AsyncSession, None]:
         async with async_session_maker() as session:
             yield session
 
-    async def override_get_redis_client():
+    async def override_get_redis_client() -> AsyncGenerator[FakeRedis, None]:
         yield test_redis
 
     app.dependency_overrides[get_db_session] = override_get_db_session
@@ -144,7 +148,7 @@ async def _setup_auth_client(app_instance: FastAPI, role: UserRole) -> AsyncClie
     }
 
     reg_res = await client.post("/api/v1/auth/register", json=user_data)
-    if reg_res.status_code != 201:
+    if reg_res.status_code != HTTPStatus.CREATED:
         await client.aclose()
         msg = f"Register failed: {reg_res.text}"
         raise RuntimeError(msg)
@@ -164,7 +168,7 @@ async def _setup_auth_client(app_instance: FastAPI, role: UserRole) -> AsyncClie
         "/api/v1/auth/login",
         data={"username": user_data["email"], "password": user_data["password"]},
     )
-    if login_res.status_code != 200:
+    if login_res.status_code != HTTPStatus.OK:
         await client.aclose()
         msg = f"Login failed: {login_res.text}"
         raise RuntimeError(msg)

@@ -1,5 +1,8 @@
 import asyncio
 import uuid
+from collections.abc import Coroutine
+from http import HTTPStatus
+from typing import TypeVar
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -12,9 +15,11 @@ from app.services.users import UserService
 from fakeredis.aioredis import FakeRedis
 from fastapi import HTTPException
 
-
 # Вспомогательная функция для запуска асинхронного кода
-def run_async(coro):
+T = TypeVar("T")
+
+
+def run_async[T](coro: Coroutine[None, None, T]) -> T:
     return asyncio.run(coro)
 
 
@@ -33,7 +38,7 @@ def test_create_user_success() -> None:
         mock_repo.session.refresh = AsyncMock()
 
         service = UserService(user_repo=mock_repo, redis_client=redis)
-        user_in = UserCreate(name="Test", email="test@test.com", password="pass")
+        user_in = UserCreate(name="Test", email="test@test.com", password="pass")  # noqa: S106
 
         result = await service.create_user(user_in)
 
@@ -56,12 +61,12 @@ def test_create_user_duplicate_email() -> None:
         mock_repo.get_by_email.return_value = User(id=uuid.uuid4(), email="exist@test.com")
 
         service = UserService(user_repo=mock_repo, redis_client=redis)
-        user_in = UserCreate(name="Test", email="exist@test.com", password="pass")
+        user_in = UserCreate(name="Test", email="exist@test.com", password="pass")  # noqa: S106
 
         with pytest.raises(HTTPException) as exc:
             await service.create_user(user_in)
 
-        assert exc.value.status_code == 400
+        assert exc.value.status_code == HTTPStatus.BAD_REQUEST
         await redis.aclose()
 
     run_async(_test())
@@ -118,7 +123,7 @@ def test_get_news_db_miss_and_not_found() -> None:
         with pytest.raises(HTTPException) as exc:
             await service.get_by_id(news_id)
 
-        assert exc.value.status_code == 404
+        assert exc.value.status_code == HTTPStatus.NOT_FOUND
         await redis.aclose()
 
     run_async(_test())

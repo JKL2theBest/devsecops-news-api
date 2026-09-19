@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING  # для ruff
 
 from sqlalchemy import DateTime, String, func
 from sqlalchemy import Enum as SAEnum
-from sqlalchemy.dialects.postgresql import UUID as pgUUID
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 class User(Base):
     __tablename__ = "users"
-    id: Mapped[uuid.UUID] = mapped_column(pgUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(50))
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
 

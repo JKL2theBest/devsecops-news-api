@@ -19,12 +19,12 @@ def test_user_registration_and_comments_flow(page: Page) -> None:
     FRONTEND_URL = "http://localhost:5173"
 
     ADMIN_EMAIL = "admin@example.com"
-    ADMIN_PASS = "admin_password"
+    ADMIN_PASS = "admin_password"  # noqa: S105
 
     unique_id = str(uuid.uuid4())[:8]
     NEW_USER_NAME = f"Commenter_{unique_id}"
     NEW_USER_EMAIL = f"new_{unique_id}@test.com"
-    NEW_USER_PASS = "password123"
+    NEW_USER_PASS = "password123"  # noqa: S105
 
     NEWS_TITLE = f"News for Comments {unique_id}"
     NEWS_BODY = "Content to be commented on."

@@ -116,7 +116,7 @@ class AuthService:
 
     async def _create_tokens(self, user: User, user_agent: str | None) -> dict:
         """Вспомогательный метод для создания access и refresh токенов и сохранения в Redis."""
-        access_token = create_access_token(subject=user.id)
+        access_token = create_access_token(subject=str(user.id))
         refresh_token_str = create_refresh_token()
         expires_delta = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
 

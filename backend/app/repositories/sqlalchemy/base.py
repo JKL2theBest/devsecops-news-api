@@ -34,7 +34,10 @@ class SQLAlchemyRepository[ModelType: Base, CreateSchemaType: BaseModel, UpdateS
         self.session.add(db_obj)
         await self.session.commit()
         result = await self.get_by_id(db_obj.id)
-        assert result is not None  # Сужение типа для Mypy
+        if result is None:
+            msg = "Created object could not be retrieved"
+            raise RuntimeError(msg)
+
         return result
 
     async def get_multi(self, skip: int = 0, limit: int = 100) -> list[ModelType]:
@@ -53,7 +56,10 @@ class SQLAlchemyRepository[ModelType: Base, CreateSchemaType: BaseModel, UpdateS
         self.session.add(db_obj)
         await self.session.commit()
         result = await self.get_by_id(db_obj.id)
-        assert result is not None
+        if result is None:
+            msg = "Created object could not be retrieved"
+            raise RuntimeError(msg)
+
         return result
 
     async def delete(self, db_obj: ModelType) -> None:
