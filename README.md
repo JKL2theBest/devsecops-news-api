@@ -3,7 +3,7 @@
 ### 1. ЗАПУСК ПРОЕКТА
 
 **Требования:**
-- Python 3.12+
+- Python 3.13+
 - Poetry (рекомендуется установка `pipx install poetry==2.4.3`)
 - Docker & Docker Compose
 - Node.js 24+ (LTS)
@@ -23,7 +23,7 @@
     ```bash
     cd backend
     poetry config virtualenvs.in-project true
-    poetry env use 3.12
+    poetry env use 3.13
     poetry install
    ```
     3.1. Для установки зависимостей разработки (тесты, линтеры, форматтеры) используйте:

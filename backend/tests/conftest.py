@@ -42,7 +42,7 @@ from sqlalchemy.pool import NullPool
 
 # --- Явное определение Event Loop ---
 @pytest.fixture
-def event_loop() -> Generator[AbstractEventLoop, None, None]:
+def event_loop() -> Generator[AbstractEventLoop]:
     """Создает fresh event loop для каждого теста."""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -56,7 +56,7 @@ async_session_maker = async_sessionmaker(engine_test, class_=AsyncSession, expir
 
 
 @pytest.fixture(scope="session", autouse=True)
-def apply_migrations() -> Generator[None, None, None]:
+def apply_migrations() -> Generator[None]:
     """Применяет миграции и чистит данные."""
     # 1. Миграции
     config = Config("alembic.ini")
@@ -97,7 +97,7 @@ def apply_migrations() -> Generator[None, None, None]:
 
 # --- Redis ---
 @pytest_asyncio.fixture(scope="function")
-async def test_redis() -> AsyncGenerator[FakeRedis, None]:
+async def test_redis() -> AsyncGenerator[FakeRedis]:
     """Фикстура, создающая фейковый клиент Redis для тестов."""
     client = FakeRedis(decode_responses=True)
     await client.flushall()
@@ -108,14 +108,14 @@ async def test_redis() -> AsyncGenerator[FakeRedis, None]:
 
 # --- App ---
 @pytest_asyncio.fixture(scope="function")
-async def test_app(test_redis: FakeRedis) -> AsyncGenerator[FastAPI, None]:
+async def test_app(test_redis: FakeRedis) -> AsyncGenerator[FastAPI]:
     """Фикстура для создания экземпляра тестового приложения с переопределенными зависимостями."""
 
-    async def override_get_db_session() -> AsyncGenerator[AsyncSession, None]:
+    async def override_get_db_session() -> AsyncGenerator[AsyncSession]:
         async with async_session_maker() as session:
             yield session
 
-    async def override_get_redis_client() -> AsyncGenerator[FakeRedis, None]:
+    async def override_get_redis_client() -> AsyncGenerator[FakeRedis]:
         yield test_redis
 
     app.dependency_overrides[get_db_session] = override_get_db_session
@@ -129,7 +129,7 @@ async def test_app(test_redis: FakeRedis) -> AsyncGenerator[FastAPI, None]:
 
 # --- Клиенты ---
 @pytest_asyncio.fixture(scope="function")
-async def client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+async def client(test_app: FastAPI) -> AsyncGenerator[AsyncClient]:
     """Фикстура для неавторизованного HTTP клиента."""
     transport = ASGITransport(app=test_app)
     async with AsyncClient(transport=transport, base_url="http://test") as c:
@@ -182,7 +182,7 @@ async def _setup_auth_client(app_instance: FastAPI, role: UserRole) -> AsyncClie
 
 
 @pytest_asyncio.fixture(scope="function")
-async def user_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+async def user_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient]:
     """Фикстура для авторизованного клиента USER."""
     client = await _setup_auth_client(test_app, UserRole.USER)
     yield client
@@ -190,7 +190,7 @@ async def user_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest_asyncio.fixture(scope="function")
-async def author_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+async def author_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient]:
     """Фикстура для авторизованного клиента VERIFIED_AUTHOR."""
     client = await _setup_auth_client(test_app, UserRole.VERIFIED_AUTHOR)
     yield client
@@ -198,7 +198,7 @@ async def author_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest_asyncio.fixture(scope="function")
-async def admin_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+async def admin_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient]:
     """Фикстура для авторизованного клиента ADMIN."""
     client = await _setup_auth_client(test_app, UserRole.ADMIN)
     yield client

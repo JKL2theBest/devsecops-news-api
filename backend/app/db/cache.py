@@ -18,7 +18,7 @@ async def init_redis_pool() -> None:
         )
 
 
-async def get_redis_client() -> AsyncGenerator[aioredis.Redis, None]:
+async def get_redis_client() -> AsyncGenerator[aioredis.Redis]:
     """Предоставляет клиент Redis."""
     if redis_pool is None:
         await init_redis_pool()
