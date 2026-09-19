@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry==2.4.3
+
+      - name: Configure Poetry
+        working-directory: backend
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        working-directory: backend
+        run: poetry install --with dev
+
+      - name: Install pre-commit
+        working-directory: /
+        run: pipx install pre-commit
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env
+        run: cp .env.example .env
+
+      - name: Start infrastructure
+        run: docker compose up -d --build
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry==2.4.3
+
+      - name: Configure Poetry
+        working-directory: backend
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        working-directory: backend
+        run: poetry install --with dev
+
+      - name: Install Playwright browsers
+        working-directory: backend
+        run: poetry run playwright install
+
+      - name: Prepare test directories
+        run: |
+          sudo rm -rf backend/logs
+          mkdir -p backend/logs
+
+      - name: Run tests
+        working-directory: backend
+        run: |
+          set -a
+          source ../.env
+          set +a
+
+          export DATABASE_URL="postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}"
+          export SYNC_DATABASE_URL="postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}"
+          export REDIS_HOST="localhost"
+          export REDIS_PORT="6379"
+          export CELERY_BROKER_URL="redis://localhost:6379/1"
+          export CELERY_RESULT_BACKEND="redis://localhost:6379/2"
+          export PROMETHEUS_MULTIPROC_DIR="$RUNNER_TEMP/metrics"
+
+          mkdir -p "$RUNNER_TEMP/metrics"
+
+          poetry run pytest
+
+      - name: Show Docker logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop infrastructure
+        if: always()
+        run: docker compose down -v
