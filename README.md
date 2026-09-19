@@ -44,7 +44,11 @@
     ```bash
     docker compose up -d --build
     ```
-5. Запуск тестов (из папки `backend` (`cd backend`)):
+5. Перед запуском тестов убедиться, что установлен браузер `playwright` (из папки `backend` (`cd backend`)):
+    ```bash
+    poetry run playwright install
+    ```
+6. Запуск тестов:
     ```bash
     poetry run pytest
     ```
